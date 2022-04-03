@@ -49,6 +49,19 @@ void drawGrid(RenderWindow *window, RectangleShape cell[GRID_STEP][GRID_STEP]) {
             window->draw(cell[i][j]);
 }
 
+Texture loadTexture(string path) {
+    Image image;
+    Texture texture;
+
+	if(!image.loadFromFile("./media/img/ship_1.jpg")) {
+        LOG(ERROR, "Can't load a texture!");
+        exit(1);
+    }
+
+    texture.loadFromImage(image);
+    return texture;
+}
+
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
 
@@ -67,6 +80,17 @@ int main() {
 
     for (int i = 0; i < 4; i++)
         rightBox[i].move(Vector2f(RECT_SIZE * 14, 0));
+
+    Texture shipsTexture[4];
+    shipsTexture[0] = loadTexture("./media/img/ship_1.jpg");
+    // shipsTexture[1] = loadTexture("./media/img/ship_2.jpg");
+    // shipsTexture[2] = loadTexture("./media/img/ship_3.jpg");
+    // shipsTexture[3] = loadTexture("./media/img/ship_4.jpg");
+
+    cell[RECT_SIZE][3].setTexture(&shipsTexture[0]);
+    cell[RECT_SIZE][5].setTexture(&shipsTexture[0]);
+    cell[RECT_SIZE][7].setTexture(&shipsTexture[0]);
+    cell[RECT_SIZE][9].setTexture(&shipsTexture[0]);
 
     while (window.isOpen()) {
         Event event;
