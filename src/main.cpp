@@ -49,6 +49,13 @@ void drawGrid(RenderWindow *window, RectangleShape cell[GRID_STEP][GRID_STEP]) {
             window->draw(cell[i][j]);
 }
 
+void drawText(RenderWindow *window, Text letterLine[], Text numberColumn[]) {
+    for (int i = 0; i < 20; i++) {
+        window->draw(letterLine[i]);
+        window->draw(numberColumn[i]);
+    }
+}
+
 Texture loadTexture(string path) {
     Image image;
     Texture texture;
@@ -60,6 +67,15 @@ Texture loadTexture(string path) {
 
     texture.loadFromImage(image);
     return texture;
+}
+
+void setText(char symbol, Text *text, Font *font, RectangleShape rect) {
+    text->setFont(*font); 
+    text->setString(symbol);
+    text->setCharacterSize(24); 
+    text->setFillColor(sf::Color::Red);
+    text->setStyle(sf::Text::Bold);
+    text->setPosition(rect.getPosition().x + rect.getSize().x / 4, rect.getPosition().y);
 }
 
 int main() {
@@ -92,6 +108,29 @@ int main() {
     cell[RECT_SIZE][7].setTexture(&shipsTexture[0]);
     cell[RECT_SIZE][9].setTexture(&shipsTexture[0]);
 
+    Font font;
+    if (!font.loadFromFile("./media/fonts/Leto Text Sans Defect.otf")) {
+        LOG(ERROR, "Can't load a font!")
+        exit(1);
+    }
+
+    Text letterLine[20];
+    Text numberColumn[20];
+    string letters = "ABCDEFGHIJ";
+
+    for (int i = 0; i < 10; i++) {
+        // lines of letters
+        setText(letters[i], &letterLine[i], &font, cell[3 + i][2]);     // Left 
+        setText(letters[i], &letterLine[10 + i], &font, cell[17 + i][2]);   // Right 
+        
+        // Columns of numbers
+        setText(*to_string(i + 1).c_str(), &numberColumn[i], &font, cell[2][3 + i]);    // Left
+        setText(*to_string(i + 1).c_str(), &numberColumn[10 + i], &font, cell[16][3 + i]); // Right
+    }
+
+    numberColumn[9].setString("10");
+    numberColumn[19].setString("10");
+
     while (window.isOpen()) {
         Event event;
 
@@ -120,6 +159,7 @@ int main() {
 // Draw
         drawGrid(&window, cell);
         drawBoxes(&window, leftBox, rightBox);
+        drawText(&window, letterLine, numberColumn);
 
         window.display();
     }
