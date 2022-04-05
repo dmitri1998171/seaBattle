@@ -105,7 +105,7 @@ void loadFont(Font *font, string path) {
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
 
-    RenderWindow window(VideoMode(WIDTH, HEIGHT), "SFML works!");
+    RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
     Font font;
     Color liveCellColor = Color::White;
@@ -149,9 +149,10 @@ int main() {
         shipsSrite[i].setScale(0.6, 0.6);
     }
 
-
     loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
     addText(numberColumn, letterLine, &font, cell);
+
+    int chooseIndex = -1;
 
     while (window.isOpen()) {
         Event event;
@@ -164,13 +165,23 @@ int main() {
                 if(event.key.code == Mouse::Left) {
                     Vector2i mousePos = Mouse::getPosition(window);
 
-                    LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
+                    // LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
 
                     for(int i = 0; i < GRID_STEP; i++) 
                         for(int j = 0; j < GRID_STEP; j++) 
                             if(cell[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                                 cell[i][j].setFillColor(deathCellColor);
-                                LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
+                                
+                                if(chooseIndex > -1) {
+                                    shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
+                                    chooseIndex = -1;
+                                }
+                                else {
+                                    for (int i = 0; i < 10; i++)
+                                        if(shipsSrite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) 
+                                            chooseIndex = i;
+                                }
+                                // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
                             }
                 }
             }
