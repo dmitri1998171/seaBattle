@@ -60,7 +60,7 @@ Texture loadTexture(string path) {
     Image image;
     Texture texture;
 
-	if(!image.loadFromFile("./media/img/ship_1.jpg")) {
+	if(!image.loadFromFile(path)) {
         LOG(ERROR, "Can't load a texture!");
         exit(1);
     }
@@ -78,15 +78,42 @@ void setText(char symbol, Text *text, Font *font, RectangleShape rect) {
     text->setPosition(rect.getPosition().x + rect.getSize().x / 4, rect.getPosition().y);
 }
 
+void addText(Text numberColumn[], Text letterLine[], Font *font, RectangleShape cell[GRID_STEP][GRID_STEP]) {
+    string letters = "ABCDEFGHIJ";
+    
+    for (int i = 0; i < 10; i++) {
+        // lines of letters
+        setText(letters[i], &letterLine[i], font, cell[3 + i][2]);     // Left 
+        setText(letters[i], &letterLine[10 + i], font, cell[17 + i][2]);   // Right 
+        
+        // Columns of numbers
+        setText(*to_string(i + 1).c_str(), &numberColumn[i], font, cell[2][3 + i]);    // Left
+        setText(*to_string(i + 1).c_str(), &numberColumn[10 + i], font, cell[16][3 + i]); // Right
+    }
+
+    numberColumn[9].setString("10");
+    numberColumn[19].setString("10");
+}
+
+void loadFont(Font *font, string path) {
+    if (!font->loadFromFile(path)) {
+        LOG(ERROR, "Can't load a font!")
+        exit(1);
+    }
+}
+
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "SFML works!");
     
+    Font font;
     Color liveCellColor = Color::White;
     Color deathCellColor(192, 192, 192);    // grey color
     RectangleShape leftBox[4];
     RectangleShape rightBox[4];
+    Text letterLine[20];
+    Text numberColumn[20];
     RectangleShape cell[GRID_STEP][GRID_STEP];
 
 // Create 
@@ -95,41 +122,36 @@ int main() {
     createBox(rightBox);
 
     for (int i = 0; i < 4; i++)
-        rightBox[i].move(Vector2f(RECT_SIZE * 14, 0));
+        rightBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right box
+
 
     Texture shipsTexture[4];
-    shipsTexture[0] = loadTexture("./media/img/ship_1.jpg");
-    // shipsTexture[1] = loadTexture("./media/img/ship_2.jpg");
-    // shipsTexture[2] = loadTexture("./media/img/ship_3.jpg");
-    // shipsTexture[3] = loadTexture("./media/img/ship_4.jpg");
+    for (int i = 0; i < 4; i++)
+        shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
 
-    cell[RECT_SIZE][3].setTexture(&shipsTexture[0]);
-    cell[RECT_SIZE][5].setTexture(&shipsTexture[0]);
-    cell[RECT_SIZE][7].setTexture(&shipsTexture[0]);
-    cell[RECT_SIZE][9].setTexture(&shipsTexture[0]);
+    Sprite shipsSrite[10];
+    shipsSrite[0].setTexture(shipsTexture[0]);
+    shipsSrite[0].setPosition(cell[30][3].getPosition());
 
-    Font font;
-    if (!font.loadFromFile("./media/fonts/Leto Text Sans Defect.otf")) {
-        LOG(ERROR, "Can't load a font!")
-        exit(1);
-    }
+    shipsSrite[1].setTexture(shipsTexture[0]);
+    shipsSrite[1].setPosition(cell[32][3].getPosition());
 
-    Text letterLine[20];
-    Text numberColumn[20];
-    string letters = "ABCDEFGHIJ";
+    shipsSrite[2].setTexture(shipsTexture[0]);
+    shipsSrite[2].setPosition(cell[34][3].getPosition());
+
+    shipsSrite[3].setTexture(shipsTexture[0]);
+    shipsSrite[3].setPosition(cell[36][3].getPosition());
+
+    shipsSrite[4].setTexture(shipsTexture[1]);
+    shipsSrite[4].setPosition(cell[30][5].getPosition());
 
     for (int i = 0; i < 10; i++) {
-        // lines of letters
-        setText(letters[i], &letterLine[i], &font, cell[3 + i][2]);     // Left 
-        setText(letters[i], &letterLine[10 + i], &font, cell[17 + i][2]);   // Right 
-        
-        // Columns of numbers
-        setText(*to_string(i + 1).c_str(), &numberColumn[i], &font, cell[2][3 + i]);    // Left
-        setText(*to_string(i + 1).c_str(), &numberColumn[10 + i], &font, cell[16][3 + i]); // Right
+        shipsSrite[i].setScale(0.6, 0.6);
     }
 
-    numberColumn[9].setString("10");
-    numberColumn[19].setString("10");
+
+    loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
+    addText(numberColumn, letterLine, &font, cell);
 
     while (window.isOpen()) {
         Event event;
@@ -160,6 +182,9 @@ int main() {
         drawGrid(&window, cell);
         drawBoxes(&window, leftBox, rightBox);
         drawText(&window, letterLine, numberColumn);
+
+        for (int i = 0; i < 10; i++)
+            window.draw(shipsSrite[i]);
 
         window.display();
     }

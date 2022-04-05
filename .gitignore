@@ -1,5 +1,5 @@
 /bin
-./vscode
+/.vscode
 .DS_Store
 log.log
 TODO.md
