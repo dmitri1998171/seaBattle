@@ -56,6 +56,11 @@ void drawText(RenderWindow *window, Text letterLine[], Text numberColumn[]) {
     }
 }
 
+void drawShipsSprite(RenderWindow *window, Sprite shipsSrite[]) {
+    for (int i = 0; i < 10; i++)
+        window->draw(shipsSrite[i]);
+}
+
 Texture loadTexture(string path) {
     Image image;
     Texture texture;
@@ -102,21 +107,57 @@ void loadFont(Font *font, string path) {
     }
 }
 
+void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape cell[GRID_STEP][GRID_STEP]) {
+    for (int i = 0; i < 10; i++) {
+        if (i < 4) {
+            shipsSrite[i].setTexture(shipsTexture[0]);
+            shipsSrite[i].setPosition(cell[30 + i * 2][3].getPosition());
+        }
+
+        else if (i < 7) {
+            shipsSrite[i].setTexture(shipsTexture[1]);
+            shipsSrite[i].setPosition(cell[17 + i * 3][5].getPosition());
+        }
+
+        else if (i < 9) {
+            shipsSrite[i].setTexture(shipsTexture[2]);
+            shipsSrite[i].setPosition(cell[2 + i * 4][7].getPosition());
+        }
+
+        else
+        {
+            shipsSrite[i].setTexture(shipsTexture[3]);
+            shipsSrite[i].setPosition(cell[33][9].getPosition());
+        }
+        
+        shipsSrite[i].setScale(0.6, 0.6);
+    }
+}
+
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
+    int chooseIndex = -1;   // Need for ship placement
     Font font;
     Color liveCellColor = Color::White;
     Color deathCellColor(192, 192, 192);    // grey color
     RectangleShape leftBox[4];
     RectangleShape rightBox[4];
+    Texture shipsTexture[4];
+    Sprite shipsSrite[10];
     Text letterLine[20];
     Text numberColumn[20];
     RectangleShape cell[GRID_STEP][GRID_STEP];
 
-// Create 
+// Load resources
+    loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
+    
+    for (int i = 0; i < 4; i++)
+        shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
+
+// Create primitives
     createGrid(cell, liveCellColor);
     createBox(leftBox);
     createBox(rightBox);
@@ -124,35 +165,8 @@ int main() {
     for (int i = 0; i < 4; i++)
         rightBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right box
 
-
-    Texture shipsTexture[4];
-    for (int i = 0; i < 4; i++)
-        shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
-
-    Sprite shipsSrite[10];
-    shipsSrite[0].setTexture(shipsTexture[0]);
-    shipsSrite[0].setPosition(cell[30][3].getPosition());
-
-    shipsSrite[1].setTexture(shipsTexture[0]);
-    shipsSrite[1].setPosition(cell[32][3].getPosition());
-
-    shipsSrite[2].setTexture(shipsTexture[0]);
-    shipsSrite[2].setPosition(cell[34][3].getPosition());
-
-    shipsSrite[3].setTexture(shipsTexture[0]);
-    shipsSrite[3].setPosition(cell[36][3].getPosition());
-
-    shipsSrite[4].setTexture(shipsTexture[1]);
-    shipsSrite[4].setPosition(cell[30][5].getPosition());
-
-    for (int i = 0; i < 10; i++) {
-        shipsSrite[i].setScale(0.6, 0.6);
-    }
-
-    loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
+    setShipsSprite(shipsSrite, shipsTexture, cell);
     addText(numberColumn, letterLine, &font, cell);
-
-    int chooseIndex = -1;
 
     while (window.isOpen()) {
         Event event;
@@ -189,13 +203,11 @@ int main() {
 
         window.clear();
 
-// Draw
+// Draw all
         drawGrid(&window, cell);
         drawBoxes(&window, leftBox, rightBox);
         drawText(&window, letterLine, numberColumn);
-
-        for (int i = 0; i < 10; i++)
-            window.draw(shipsSrite[i]);
+        drawShipsSprite(&window, shipsSrite);
 
         window.display();
     }
