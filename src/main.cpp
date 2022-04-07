@@ -211,7 +211,7 @@ int main() {
                                         shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
                                         shipsSrite[chooseIndex].move(16, 16);   // Eccentricity compensation (setOrigin)
 
-                                        for (int k = 0; k < 4; k++)
+                                        for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
                                             if(shipsSrite[chooseIndex].getGlobalBounds().intersects(leftBorderBox[k].getGlobalBounds())) {
                                                 shipsSrite[chooseIndex].setColor(Color::Red);
                                                 LOG(WARNING, "The ship have collision with a border!")
@@ -219,7 +219,19 @@ int main() {
                                             }
                                             else
                                                 shipsSrite[chooseIndex].setColor(Color::White);
-                                            
+                                        }
+
+                                        for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
+                                            if(chooseIndex != k)
+                                                if(shipsSrite[chooseIndex].getGlobalBounds().left >= shipsSrite[k].getGlobalBounds().left - 32 && 
+                                                   shipsSrite[chooseIndex].getGlobalBounds().left <= shipsSrite[k].getGlobalBounds().left + 32) {
+                                                    if(shipsSrite[chooseIndex].getGlobalBounds().top >= shipsSrite[k].getGlobalBounds().top - 32 && 
+                                                       shipsSrite[chooseIndex].getGlobalBounds().top <= shipsSrite[k].getGlobalBounds().top + 32)
+                                                    LOG(WARNING, "The ship have collision with another ship!")
+                                                    break;
+                                                }
+                                        }
+                                        
                                         chooseIndex = -1;
                                     }
                                 }
@@ -233,9 +245,6 @@ int main() {
                 }
             }
         }
-
-
-        
 
         window.clear();
 
