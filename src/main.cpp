@@ -107,44 +107,35 @@ void loadFont(Font *font, string path) {
     }
 }
 
-void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape cell[GRID_STEP][GRID_STEP]) {
+void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape cell[GRID_STEP][GRID_STEP], int isVertical[]) {
     for (int i = 0; i < 10; i++) {
         if (i < 4) {
             shipsSrite[i].setTexture(shipsTexture[0]);
             shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[30 + i * 2][3].getPosition());
-            shipsSrite[i].move(16, 16);
         }
 
         else if (i < 7) {
             shipsSrite[i].setTexture(shipsTexture[1]);
             shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 4, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[17 + i * 3][5].getPosition());
-            shipsSrite[i].move(16, 16);
         }
 
         else if (i < 9) {
             shipsSrite[i].setTexture(shipsTexture[2]);
             shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[3 + i * 4][7].getPosition());
-            shipsSrite[i].move(16, 16);
         }
 
         else {
             shipsSrite[i].setTexture(shipsTexture[3]);
             shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 8, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[33][9].getPosition());
-            shipsSrite[i].move(16, 16);
         }
         
         shipsSrite[i].setScale(0.6, 0.6);
-
-        // if(i % 2 == 0)
-        //     shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 4, shipsSrite[i].getLocalBounds().height / 2);
-        // else
-        //     shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
-
-        // shipsSrite[i].move(16, 16);
+        shipsSrite[i].move(16, 16);     // Eccentricity compensation (setOrigin)
+        isVertical[i] = 0;
     }
 }
 
@@ -154,6 +145,7 @@ int main() {
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
     int chooseIndex = -1;   // Need for ship placement
+    int isVertical[10];
     Font font;
     Color liveCellColor = Color::White;
     Color deathCellColor(192, 192, 192);    // grey color
@@ -179,7 +171,7 @@ int main() {
     for (int i = 0; i < 4; i++)
         rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
 
-    setShipsSprite(shipsSrite, shipsTexture, cell);
+    setShipsSprite(shipsSrite, shipsTexture, cell, isVertical);
     addText(numberColumn, letterLine, &font, cell);
 
     while (window.isOpen()) {
@@ -193,10 +185,13 @@ int main() {
                 if(event.key.code == Keyboard::R) {
                     if(chooseIndex > -1) { // If ship was chosen
                         shipsSrite[chooseIndex].setRotation(shipsSrite[chooseIndex].getRotation() + 90);
+
+                        isVertical[chooseIndex]++;
+                        if(isVertical[chooseIndex] > 1)
+                            isVertical[chooseIndex] = 0;
+
                         chooseIndex = -1;
                     }
-
-                    // LOG(INFO, "R")
                 }
             }
 
@@ -212,10 +207,19 @@ int main() {
                                 cell[i][j].setFillColor(deathCellColor);
                                 
                                 if(chooseIndex > -1) {      // If ship was chosen
-                                    if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBorderBox
+                                    if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
                                         shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
-                                        shipsSrite[chooseIndex].move(16, 16);
+                                        shipsSrite[chooseIndex].move(16, 16);   // Eccentricity compensation (setOrigin)
 
+                                        for (int k = 0; k < 4; k++)
+                                            if(shipsSrite[chooseIndex].getGlobalBounds().intersects(leftBorderBox[k].getGlobalBounds())) {
+                                                shipsSrite[chooseIndex].setColor(Color::Red);
+                                                LOG(WARNING, "The ship have collision with a border!")
+                                                break;
+                                            }
+                                            else
+                                                shipsSrite[chooseIndex].setColor(Color::White);
+                                            
                                         chooseIndex = -1;
                                     }
                                 }
@@ -229,6 +233,9 @@ int main() {
                 }
             }
         }
+
+
+        
 
         window.clear();
 
