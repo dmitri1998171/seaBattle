@@ -10,17 +10,17 @@
 
 using namespace sf;
 
-void createBox(RectangleShape box[]) {
-    box[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
-    box[1].setPosition((RECT_SIZE * 13) + OFFSET, RECT_SIZE * 3);
-    box[1].setRotation(90);
-    box[2].setPosition(RECT_SIZE * 3, (RECT_SIZE * 13) - OFFSET);
-    box[3].setPosition((RECT_SIZE * 3) + OFFSET, RECT_SIZE * 3);
-    box[3].setRotation(90);
+void createBorderBox(RectangleShape BorderBox[]) {
+    BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
+    BorderBox[1].setPosition((RECT_SIZE * 13) + OFFSET, RECT_SIZE * 3);
+    BorderBox[1].setRotation(90);
+    BorderBox[2].setPosition(RECT_SIZE * 3, (RECT_SIZE * 13) - OFFSET);
+    BorderBox[3].setPosition((RECT_SIZE * 3) + OFFSET, RECT_SIZE * 3);
+    BorderBox[3].setRotation(90);
 
     for (int i = 0; i < 4; i++) {
-        box[i].setSize(Vector2f(RECT_SIZE * 10, 5));
-        box[i].setFillColor(Color::Blue);
+        BorderBox[i].setSize(Vector2f(RECT_SIZE * 10, 5));
+        BorderBox[i].setFillColor(Color::Blue);
     }
 }
 
@@ -36,10 +36,10 @@ void createGrid(RectangleShape cell[GRID_STEP][GRID_STEP], Color liveCellColor) 
     }
 }
 
-void drawBoxes(RenderWindow *window, RectangleShape leftBox[], RectangleShape rightBox[]) {
+void drawBorderBoxes(RenderWindow *window, RectangleShape leftBorderBox[], RectangleShape rightBorderBox[]) {
     for (int i = 0; i < 4; i++) {
-        window->draw(leftBox[i]);
-        window->draw(rightBox[i]);
+        window->draw(leftBorderBox[i]);
+        window->draw(rightBorderBox[i]);
     }
 }
 
@@ -111,26 +111,40 @@ void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape 
     for (int i = 0; i < 10; i++) {
         if (i < 4) {
             shipsSrite[i].setTexture(shipsTexture[0]);
+            shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[30 + i * 2][3].getPosition());
+            shipsSrite[i].move(16, 16);
         }
 
         else if (i < 7) {
             shipsSrite[i].setTexture(shipsTexture[1]);
+            shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 4, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[17 + i * 3][5].getPosition());
+            shipsSrite[i].move(16, 16);
         }
 
         else if (i < 9) {
             shipsSrite[i].setTexture(shipsTexture[2]);
-            shipsSrite[i].setPosition(cell[2 + i * 4][7].getPosition());
+            shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
+            shipsSrite[i].setPosition(cell[3 + i * 4][7].getPosition());
+            shipsSrite[i].move(16, 16);
         }
 
-        else
-        {
+        else {
             shipsSrite[i].setTexture(shipsTexture[3]);
+            shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 8, shipsSrite[i].getLocalBounds().height / 2);
             shipsSrite[i].setPosition(cell[33][9].getPosition());
+            shipsSrite[i].move(16, 16);
         }
         
         shipsSrite[i].setScale(0.6, 0.6);
+
+        // if(i % 2 == 0)
+        //     shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 4, shipsSrite[i].getLocalBounds().height / 2);
+        // else
+        //     shipsSrite[i].setOrigin(shipsSrite[i].getLocalBounds().width / 2, shipsSrite[i].getLocalBounds().height / 2);
+
+        // shipsSrite[i].move(16, 16);
     }
 }
 
@@ -143,8 +157,8 @@ int main() {
     Font font;
     Color liveCellColor = Color::White;
     Color deathCellColor(192, 192, 192);    // grey color
-    RectangleShape leftBox[4];
-    RectangleShape rightBox[4];
+    RectangleShape leftBorderBox[4];
+    RectangleShape rightBorderBox[4];
     Texture shipsTexture[4];
     Sprite shipsSrite[10];
     Text letterLine[20];
@@ -159,11 +173,11 @@ int main() {
 
 // Create primitives
     createGrid(cell, liveCellColor);
-    createBox(leftBox);
-    createBox(rightBox);
+    createBorderBox(leftBorderBox);
+    createBorderBox(rightBorderBox);
 
     for (int i = 0; i < 4; i++)
-        rightBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right box
+        rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
 
     setShipsSprite(shipsSrite, shipsTexture, cell);
     addText(numberColumn, letterLine, &font, cell);
@@ -174,6 +188,17 @@ int main() {
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed)
                 window.close();
+
+            if(event.type == Event::KeyReleased) {
+                if(event.key.code == Keyboard::R) {
+                    if(chooseIndex > -1) { // If ship was chosen
+                        shipsSrite[chooseIndex].setRotation(shipsSrite[chooseIndex].getRotation() + 90);
+                        chooseIndex = -1;
+                    }
+
+                    // LOG(INFO, "R")
+                }
+            }
 
             if(event.type == Event::MouseButtonReleased) {
                 if(event.key.code == Mouse::Left) {
@@ -186,13 +211,17 @@ int main() {
                             if(cell[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                                 cell[i][j].setFillColor(deathCellColor);
                                 
-                                if(chooseIndex > -1) {
-                                    shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
-                                    chooseIndex = -1;
+                                if(chooseIndex > -1) {      // If ship was chosen
+                                    if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBorderBox
+                                        shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
+                                        shipsSrite[chooseIndex].move(16, 16);
+
+                                        chooseIndex = -1;
+                                    }
                                 }
-                                else {
+                                else {  
                                     for (int i = 0; i < 10; i++)
-                                        if(shipsSrite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) 
+                                        if(shipsSrite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
                                             chooseIndex = i;
                                 }
                                 // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
@@ -205,7 +234,7 @@ int main() {
 
 // Draw all
         drawGrid(&window, cell);
-        drawBoxes(&window, leftBox, rightBox);
+        drawBorderBoxes(&window, leftBorderBox, rightBorderBox);
         drawText(&window, letterLine, numberColumn);
         drawShipsSprite(&window, shipsSrite);
 
