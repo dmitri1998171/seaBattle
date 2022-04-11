@@ -1,14 +1,12 @@
-#include <SFML/Graphics.hpp>
-#include <MyLogger.hpp>
+// #include <SFML/Graphics.hpp>
+// using namespace sf;
 
-#define WIDTH 1216
-#define HEIGHT 512
+#include "Menu/Menu.hpp"
+#include "MyLogger.hpp"
 
 #define RECT_SIZE 32
 #define OFFSET 3
 #define GRID_STEP WIDTH / RECT_SIZE
-
-using namespace sf;
 
 enum State {MENU, PLAY, PAUSE, WIN, LOSE};
 
@@ -61,19 +59,6 @@ void drawText(RenderWindow *window, Text letterLine[], Text numberColumn[]) {
 void drawShipsSprite(RenderWindow *window, Sprite shipsSrite[]) {
     for (int i = 0; i < 10; i++)
         window->draw(shipsSrite[i]);
-}
-
-Texture loadTexture(string path) {
-    Image image;
-    Texture texture;
-
-	if(!image.loadFromFile(path)) {
-        LOG(ERROR, "Can't load a texture!");
-        exit(1);
-    }
-
-    texture.loadFromImage(image);
-    return texture;
 }
 
 void setText(char symbol, Text *text, Font *font, RectangleShape rect) {
@@ -143,10 +128,10 @@ void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape 
 
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
-    State currentState = PLAY;
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
+    bool isCreated = false;
     int chooseIndex = -1;   // Need for ship placement
     int isVertical[10];
     Font font;
@@ -159,23 +144,22 @@ int main() {
     Text letterLine[20];
     Text numberColumn[20];
     RectangleShape cell[GRID_STEP][GRID_STEP];
+    State currentState = MENU;
 
-// Load resources
+/* Load resources */
     loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
     
     for (int i = 0; i < 4; i++)
         shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
 
-// Create primitives
-    createGrid(cell, liveCellColor);
-    createBorderBox(leftBorderBox);
-    createBorderBox(rightBorderBox);
+/* Create menu */
+    Menu menu;
+    RectangleShape newGameButton, settingsButton, exitButton;
 
-    for (int i = 0; i < 4; i++)
-        rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
-
-    setShipsSprite(shipsSrite, shipsTexture, cell, isVertical);
-    addText(numberColumn, letterLine, &font, cell);
+    // add buttons
+    menu.createRect(&newGameButton, Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
+    menu.createRect(&settingsButton, Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
+    menu.createRect(&exitButton, Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
 
     while (window.isOpen()) {
         Event event;
@@ -183,9 +167,44 @@ int main() {
 
         switch (currentState) {
             case MENU:
+                while (window.pollEvent(event)) {
+                    if (event.type == Event::Closed)
+                        window.close();
+
+                    if(event.type == Event::MouseButtonReleased) {
+                        if(event.key.code == Mouse::Left) {
+                            Vector2i mousePos = Mouse::getPosition(window);
+
+                            if(menu.checkToClickRect(&window, newGameButton)) {
+                                currentState = PLAY;
+                                LOG(INFO, "Green button was clicked!")
+                            }
+                        }
+                    }
+                }
+
+                menu.draw(&window);
+
+                window.draw(newGameButton);
+                window.draw(settingsButton);
+                window.draw(exitButton);
                 break;
             
             case PLAY:
+                if(!isCreated) {
+                    /* Create primitives */
+                    createGrid(cell, liveCellColor);
+                    createBorderBox(leftBorderBox);
+                    createBorderBox(rightBorderBox);
+
+                    for (int i = 0; i < 4; i++)
+                        rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
+
+                    setShipsSprite(shipsSrite, shipsTexture, cell, isVertical);
+                    addText(numberColumn, letterLine, &font, cell);
+                    isCreated = true;
+                }
+
                 while (window.pollEvent(event)) {
                     if (event.type == Event::Closed)
                         window.close();
@@ -272,7 +291,6 @@ int main() {
             case LOSE:
                 break;
         }
-
 
         window.display();
     }
