@@ -10,6 +10,8 @@
 
 using namespace sf;
 
+enum State {MENU, PLAY, PAUSE, WIN, LOSE};
+
 void createBorderBox(RectangleShape BorderBox[]) {
     BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
     BorderBox[1].setPosition((RECT_SIZE * 13) + OFFSET, RECT_SIZE * 3);
@@ -141,6 +143,7 @@ void setShipsSprite(Sprite shipsSrite[], Texture shipsTexture[], RectangleShape 
 
 int main() {
     LOG_CONFIG_TIMESTAMP(false)
+    State currentState = PLAY;
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
@@ -176,83 +179,100 @@ int main() {
 
     while (window.isOpen()) {
         Event event;
-
-        while (window.pollEvent(event)) {
-            if (event.type == Event::Closed)
-                window.close();
-
-            if(event.type == Event::KeyReleased) {
-                if(event.key.code == Keyboard::R) {
-                    if(chooseIndex > -1) { // If ship was chosen
-                        shipsSrite[chooseIndex].setRotation(shipsSrite[chooseIndex].getRotation() + 90);
-
-                        isVertical[chooseIndex]++;
-                        if(isVertical[chooseIndex] > 1)
-                            isVertical[chooseIndex] = 0;
-
-                        chooseIndex = -1;
-                    }
-                }
-            }
-
-            if(event.type == Event::MouseButtonReleased) {
-                if(event.key.code == Mouse::Left) {
-                    Vector2i mousePos = Mouse::getPosition(window);
-
-                    // LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
-
-                    for(int i = 0; i < GRID_STEP; i++) 
-                        for(int j = 0; j < GRID_STEP; j++) 
-                            if(cell[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                cell[i][j].setFillColor(deathCellColor);
-                                
-                                if(chooseIndex > -1) {      // If ship was chosen
-                                    if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
-                                        shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
-                                        shipsSrite[chooseIndex].move(16, 16);   // Eccentricity compensation (setOrigin)
-
-                                        for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
-                                            if(shipsSrite[chooseIndex].getGlobalBounds().intersects(leftBorderBox[k].getGlobalBounds())) {
-                                                shipsSrite[chooseIndex].setColor(Color::Red);
-                                                LOG(WARNING, "The ship have collision with a border!")
-                                                break;
-                                            }
-                                            else
-                                                shipsSrite[chooseIndex].setColor(Color::White);
-                                        }
-
-                                        for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
-                                            if(chooseIndex != k)
-                                                if(shipsSrite[chooseIndex].getGlobalBounds().left >= shipsSrite[k].getGlobalBounds().left - 32 && 
-                                                   shipsSrite[chooseIndex].getGlobalBounds().left <= shipsSrite[k].getGlobalBounds().left + 32) {
-                                                    if(shipsSrite[chooseIndex].getGlobalBounds().top >= shipsSrite[k].getGlobalBounds().top - 32 && 
-                                                       shipsSrite[chooseIndex].getGlobalBounds().top <= shipsSrite[k].getGlobalBounds().top + 32)
-                                                    LOG(WARNING, "The ship have collision with another ship!")
-                                                    break;
-                                                }
-                                        }
-                                        
-                                        chooseIndex = -1;
-                                    }
-                                }
-                                else {  
-                                    for (int i = 0; i < 10; i++)
-                                        if(shipsSrite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
-                                            chooseIndex = i;
-                                }
-                                // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
-                            }
-                }
-            }
-        }
-
         window.clear();
 
-// Draw all
-        drawGrid(&window, cell);
-        drawBorderBoxes(&window, leftBorderBox, rightBorderBox);
-        drawText(&window, letterLine, numberColumn);
-        drawShipsSprite(&window, shipsSrite);
+        switch (currentState) {
+            case MENU:
+                break;
+            
+            case PLAY:
+                while (window.pollEvent(event)) {
+                    if (event.type == Event::Closed)
+                        window.close();
+
+                    if(event.type == Event::KeyReleased) {
+                        if(event.key.code == Keyboard::R) {
+                            if(chooseIndex > -1) { // If ship was chosen
+                                shipsSrite[chooseIndex].setRotation(shipsSrite[chooseIndex].getRotation() + 90);
+
+                                isVertical[chooseIndex]++;
+                                if(isVertical[chooseIndex] > 1)
+                                    isVertical[chooseIndex] = 0;
+
+                                chooseIndex = -1;
+                            }
+                        }
+                    }
+
+                    if(event.type == Event::MouseButtonReleased) {
+                        if(event.key.code == Mouse::Left) {
+                            Vector2i mousePos = Mouse::getPosition(window);
+
+                            // LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
+
+                            for(int i = 0; i < GRID_STEP; i++) 
+                                for(int j = 0; j < GRID_STEP; j++) 
+                                    if(cell[i][j].getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                        cell[i][j].setFillColor(deathCellColor);
+                                        
+                                        if(chooseIndex > -1) {      // If ship was chosen
+                                            if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
+                                                shipsSrite[chooseIndex].setPosition(cell[i][j].getPosition());
+                                                shipsSrite[chooseIndex].move(16, 16);   // Eccentricity compensation (setOrigin)
+
+                                                for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
+                                                    if(shipsSrite[chooseIndex].getGlobalBounds().intersects(leftBorderBox[k].getGlobalBounds())) {
+                                                        shipsSrite[chooseIndex].setColor(Color::Red);
+                                                        LOG(WARNING, "The ship have collision with a border!")
+                                                        break;
+                                                    }
+                                                    else
+                                                        shipsSrite[chooseIndex].setColor(Color::White);
+                                                }
+
+                                                for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
+                                                    if(chooseIndex != k)
+                                                        if(shipsSrite[chooseIndex].getGlobalBounds().left >= shipsSrite[k].getGlobalBounds().left - 32 && 
+                                                        shipsSrite[chooseIndex].getGlobalBounds().left <= shipsSrite[k].getGlobalBounds().left + 32) {
+                                                            if(shipsSrite[chooseIndex].getGlobalBounds().top >= shipsSrite[k].getGlobalBounds().top - 32 && 
+                                                            shipsSrite[chooseIndex].getGlobalBounds().top <= shipsSrite[k].getGlobalBounds().top + 32)
+                                                                shipsSrite[chooseIndex].setColor(Color::Red);
+                                                                LOG(WARNING, "The ship have collision with another ship!")
+                                                                break;
+                                                        }
+                                                }
+                                                
+                                                chooseIndex = -1;
+                                            }
+                                        }
+                                        else {  
+                                            for (int i = 0; i < 10; i++)
+                                                if(shipsSrite[i].getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
+                                                    chooseIndex = i;
+                                        }
+                                        // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
+                                    }
+                        }
+                    }
+                }
+        
+        // Draw all
+                drawGrid(&window, cell);
+                drawBorderBoxes(&window, leftBorderBox, rightBorderBox);
+                drawText(&window, letterLine, numberColumn);
+                drawShipsSprite(&window, shipsSrite);
+                break;
+            
+            case PAUSE:
+                break;
+            
+            case WIN:
+                break;
+
+            case LOSE:
+                break;
+        }
+
 
         window.display();
     }
