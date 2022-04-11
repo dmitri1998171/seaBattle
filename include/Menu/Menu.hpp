@@ -3,7 +3,7 @@
 
 #include "Menu/UI.hpp"
 
-enum menuState {MAIN_MENU, SETTINGS, EXIT};
+enum menuState {MAIN_MENU, PAUSE, SETTINGS, EXIT};
 
 class Menu : public IDrawUI {
     private:
@@ -15,6 +15,8 @@ class Menu : public IDrawUI {
         int checkToClickRect(RenderWindow* window, RectangleShape rect);
         int checkToClickSprite(RenderWindow* window, Sprite* button);
         void draw(RenderWindow *window);
+        menuState getState();
+        void setState(menuState newState);
 };
 
 Menu::Menu() {
@@ -54,6 +56,14 @@ void Menu::draw(RenderWindow *window) {
 
     // if (state == EXIT)
             
+}
+
+menuState Menu::getState() {
+    return state;
+}
+
+void Menu::setState(menuState newState) {
+    this->state = newState;
 }
 
 #endif

@@ -8,7 +8,7 @@
 #define OFFSET 3
 #define GRID_STEP WIDTH / RECT_SIZE
 
-enum State {MENU, PLAY, PAUSE, WIN, LOSE};
+enum State {MENU, PLAY, WIN, LOSE};
 
 void createBorderBox(RectangleShape BorderBox[]) {
     BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
@@ -154,10 +154,10 @@ int main() {
 
 /* Create menu */
     Menu menu;
-    RectangleShape newGameButton, settingsButton, exitButton;
+    RectangleShape playButton, settingsButton, exitButton;
 
     // add buttons
-    menu.createRect(&newGameButton, Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
+    menu.createRect(&playButton, Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
     menu.createRect(&settingsButton, Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
     menu.createRect(&exitButton, Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
 
@@ -171,21 +171,66 @@ int main() {
                     if (event.type == Event::Closed)
                         window.close();
 
-                    if(event.type == Event::MouseButtonReleased) {
-                        if(event.key.code == Mouse::Left) {
-                            Vector2i mousePos = Mouse::getPosition(window);
+                    if(menu.getState() == MAIN_MENU) {
+                        if(event.type == Event::MouseButtonReleased) {
+                            if(event.key.code == Mouse::Left) {
+                                Vector2i mousePos = Mouse::getPosition(window);
 
-                            if(menu.checkToClickRect(&window, newGameButton)) {
-                                currentState = PLAY;
-                                LOG(INFO, "Green button was clicked!")
+                                if(menu.checkToClickRect(&window, playButton)) {
+                                    LOG(INFO, "Green button was clicked!")
+                                    currentState = PLAY;
+                                }
+
+                                if(menu.checkToClickRect(&window, settingsButton)) {
+                                    LOG(INFO, "Green button was clicked!")
+
+                                }
+
+                                if(menu.checkToClickRect(&window, exitButton)) {
+                                    LOG(INFO, "Red button was clicked!")
+                                    exit(0);
+                                }
                             }
                         }
+                    }
+
+                    if(menu.getState() == PAUSE) {
+                        if(event.type == Event::KeyReleased) {
+                            if(event.key.code == Keyboard::Escape) {
+                                currentState = PLAY;
+                            }
+                        }
+
+                        if(event.type == Event::MouseButtonReleased) {
+                            if(event.key.code == Mouse::Left) {
+                                Vector2i mousePos = Mouse::getPosition(window);
+
+                                if(menu.checkToClickRect(&window, playButton)) {
+                                    LOG(INFO, "Green button was clicked!")
+                                    currentState = PLAY;
+                                }
+
+                                if(menu.checkToClickRect(&window, settingsButton)) {
+                                    LOG(INFO, "Yellow button was clicked!")
+                                    menu.setState(SETTINGS);
+                                }
+
+                                if(menu.checkToClickRect(&window, exitButton)) {
+                                    LOG(INFO, "Red button was clicked!")
+                                    currentState = MENU;
+                                    menu.setState(MAIN_MENU);
+                                }
+                            }
+                        }
+                    }
+
+                    if(menu.getState() == SETTINGS) {
+                        
                     }
                 }
 
                 menu.draw(&window);
-
-                window.draw(newGameButton);
+                window.draw(playButton);
                 window.draw(settingsButton);
                 window.draw(exitButton);
                 break;
@@ -220,6 +265,11 @@ int main() {
 
                                 chooseIndex = -1;
                             }
+                        }
+
+                        if(event.key.code == Keyboard::Escape) {
+                            currentState = MENU;
+                            menu.setState(PAUSE);
                         }
                     }
 
@@ -280,9 +330,6 @@ int main() {
                 drawBorderBoxes(&window, leftBorderBox, rightBorderBox);
                 drawText(&window, letterLine, numberColumn);
                 drawShipsSprite(&window, shipsSrite);
-                break;
-            
-            case PAUSE:
                 break;
             
             case WIN:
