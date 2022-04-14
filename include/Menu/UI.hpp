@@ -16,10 +16,10 @@ void sprite_loader(Sprite* sprite, Texture* texture, string path, float x, float
 
 class IDrawUI {
     public:
-        void addBackground(RectangleShape* background, Color color);
+        RectangleShape* addBackground(Color color);
         void addText(Font*, Text*, String, Color, float, float);
         Sprite addButton(string texturePath, Vector2f position);
-        void createRect(RectangleShape*, Color, FloatRect);
-        void createCircleAngleRect(RectangleShape*, Color, int, int, int, int);
+        RectangleShape* createRect(Color, FloatRect);
+        RectangleShape createCircleAngleRect(Color, int, int, int, int);
 };
 #endif

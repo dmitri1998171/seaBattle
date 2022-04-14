@@ -154,12 +154,11 @@ int main() {
 
 /* Create menu */
     Menu menu;
-    RectangleShape playButton, settingsButton, exitButton;
 
     // add buttons
-    menu.createRect(&playButton, Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
-    menu.createRect(&settingsButton, Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
-    menu.createRect(&exitButton, Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
+    menu.addRectButton(Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
+    menu.addRectButton(Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
+    menu.addRectButton(Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
 
     while (window.isOpen()) {
         Event event;
@@ -176,17 +175,17 @@ int main() {
                             if(event.key.code == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
 
-                                if(menu.checkToClickRect(&window, playButton)) {
+                                if(menu.checkToClickRect(&window, menu.getRectButton(1))) {
                                     LOG(INFO, "Green button was clicked!")
                                     currentState = PLAY;
                                 }
 
-                                if(menu.checkToClickRect(&window, settingsButton)) {
-                                    LOG(INFO, "Green button was clicked!")
-
+                                if(menu.checkToClickRect(&window, menu.getRectButton(2))) {
+                                    LOG(INFO, "Yellow button was clicked!")
+                                    menu.setState(SETTINGS);
                                 }
 
-                                if(menu.checkToClickRect(&window, exitButton)) {
+                                if(menu.checkToClickRect(&window, menu.getRectButton(3))) {
                                     LOG(INFO, "Red button was clicked!")
                                     exit(0);
                                 }
@@ -205,17 +204,17 @@ int main() {
                             if(event.key.code == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
 
-                                if(menu.checkToClickRect(&window, playButton)) {
+                                if(menu.checkToClickRect(&window, menu.getRectButton(1))) {
                                     LOG(INFO, "Green button was clicked!")
                                     currentState = PLAY;
                                 }
 
-                                if(menu.checkToClickRect(&window, settingsButton)) {
+                                if(menu.checkToClickRect(&window, menu.getRectButton(2))) {
                                     LOG(INFO, "Yellow button was clicked!")
                                     menu.setState(SETTINGS);
                                 }
 
-                                if(menu.checkToClickRect(&window, exitButton)) {
+                                if(menu.checkToClickRect(&window, menu.getRectButton(3))) {
                                     LOG(INFO, "Red button was clicked!")
                                     currentState = MENU;
                                     menu.setState(MAIN_MENU);
@@ -225,14 +224,11 @@ int main() {
                     }
 
                     if(menu.getState() == SETTINGS) {
-                        
+
                     }
                 }
 
                 menu.draw(&window);
-                window.draw(playButton);
-                window.draw(settingsButton);
-                window.draw(exitButton);
                 break;
             
             case PLAY:

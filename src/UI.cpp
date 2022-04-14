@@ -24,15 +24,19 @@ void sprite_loader(Sprite* sprite, Texture* texture, string path, float x, float
     sprite->setPosition(x, y);
 }
 
-void IDrawUI::addBackground(RectangleShape* background, Color color) {
-    createRect(background, color, FloatRect(0, 0, WIDTH * 2, HEIGHT * 2));
+RectangleShape* IDrawUI::addBackground(Color color) {
+    return createRect(color, FloatRect(0, 0, WIDTH * 2, HEIGHT * 2));
 }
 
-void IDrawUI::createRect(RectangleShape *rect, Color color, FloatRect bounds) {
+RectangleShape* IDrawUI::createRect(Color color, FloatRect bounds) {
+    RectangleShape *rect = new RectangleShape;
+
     rect->setSize(Vector2f(bounds.width, bounds.height));
     rect->setPosition(Vector2f(bounds.left, bounds.top));
     rect->setOrigin(rect->getGlobalBounds().width / 2, rect->getGlobalBounds().height / 2);
     rect->setFillColor(Color(color));
+
+    return rect;
 }
 
 void IDrawUI::addText(Font* font, Text *text, String message, Color color, float x, float y) {
@@ -43,14 +47,15 @@ void IDrawUI::addText(Font* font, Text *text, String message, Color color, float
     text->setPosition(Vector2f(x, y));
 }
 
-void IDrawUI::createCircleAngleRect(RectangleShape *rect, Color color, int width, int height, int x, int y) {
+RectangleShape IDrawUI::createCircleAngleRect(Color color, int width, int height, int x, int y) {
     int radius = height / 2;
-
-    createRect(rect, color, FloatRect(width, height, x, y));
+    // RectangleShape *rect = createRect(color, FloatRect(width, height, x, y));
     
     CircleShape left_circle(radius), right_circle(radius);
     left_circle.setPosition(x, y + radius);
     right_circle.setPosition(x + width, y + radius);
+
+    // return *rect;
 }
 
 Sprite IDrawUI::addButton(string texturePath, Vector2f position) {
