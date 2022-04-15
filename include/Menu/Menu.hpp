@@ -28,7 +28,7 @@ class Menu : public IDrawUI {
         void setVisible(int index, bool isVisible);
         bool isVisible(int index);
         void addText(Vector2f position, string str, int size, Color color, Uint32 style);
-        Text getText(int index);
+        Text* getText(int index);
 };
 
 Menu::Menu(Font* font) {
@@ -128,8 +128,8 @@ void Menu::addText(Vector2f position, string str, int size, Color color, Uint32 
     texts.push_back(text);
 }
 
-Text Menu::getText(int index) {
-    return texts[index];
+Text* Menu::getText(int index) {
+    return &texts[index];
 }
 
 #endif
