@@ -166,11 +166,14 @@ int main() {
 
         switch (currentState) {
             case MENU:
-                while (window.pollEvent(event)) {
-                    if (event.type == Event::Closed)
-                        window.close();
+                if(menu.getState() == MAIN_MENU) {
+                    if(menu.isVisible(2) == false) 
+                        menu.setVisible(2, true);
 
-                    if(menu.getState() == MAIN_MENU) {
+                    while (window.pollEvent(event)) {
+                        if (event.type == Event::Closed)
+                            window.close();
+
                         if(event.type == Event::MouseButtonReleased) {
                             if(event.key.code == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
@@ -192,8 +195,16 @@ int main() {
                             }
                         }
                     }
+                }
 
-                    if(menu.getState() == PAUSE) {
+                if(menu.getState() == PAUSE) {
+                    if(menu.isVisible(2) == true) 
+                        menu.setVisible(2, false);
+
+                    while (window.pollEvent(event)) {
+                        if (event.type == Event::Closed)
+                            window.close();
+
                         if(event.type == Event::KeyReleased) {
                             if(event.key.code == Keyboard::Escape) {
                                 currentState = PLAY;
@@ -209,11 +220,6 @@ int main() {
                                     currentState = PLAY;
                                 }
 
-                                if(menu.checkToClickRect(&window, menu.getRectButton(2))) {
-                                    LOG(INFO, "Yellow button was clicked!")
-                                    menu.setState(SETTINGS);
-                                }
-
                                 if(menu.checkToClickRect(&window, menu.getRectButton(3))) {
                                     LOG(INFO, "Red button was clicked!")
                                     currentState = MENU;
@@ -222,9 +228,16 @@ int main() {
                             }
                         }
                     }
+                }
 
-                    if(menu.getState() == SETTINGS) {
+                if(menu.getState() == SETTINGS) {
+                    while (window.pollEvent(event)) {
+                        if (event.type == Event::Closed)
+                            window.close();
 
+                        if(event.type == Event::KeyReleased) 
+                            if(event.key.code == Keyboard::Escape) 
+                                menu.setState(MAIN_MENU);
                     }
                 }
 

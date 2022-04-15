@@ -9,7 +9,9 @@ enum menuState {MAIN_MENU, PAUSE, SETTINGS, EXIT};
 class Menu : public IDrawUI {
     private:
         menuState state;
-        vector<RectangleShape> buttons;
+        vector<RectangleShape> buttons;         // all buttons
+        vector<RectangleShape> visible;         // visible only 
+        vector<RectangleShape>::iterator it;
 
     public:
         Menu();
@@ -21,11 +23,15 @@ class Menu : public IDrawUI {
         menuState getState();
         void setState(menuState newState);
         RectangleShape getRectButton(int index);
+        void setVisible(int index, bool isVisible);
+        bool isVisible(int index);
 };
 
 Menu::Menu() {
     state = MAIN_MENU;
     buttons.push_back(*addBackground(Color(128, 128, 128)));
+    visible.push_back(buttons.back());
+    it = visible.begin();
 }
 
 int Menu::checkToClickRect(RenderWindow* window, RectangleShape rect) {
@@ -49,23 +55,13 @@ int Menu::checkToClickSprite(RenderWindow* window, Sprite* button) {
 }
 
 void Menu::draw(RenderWindow *window) {
-    for (int i = 0; i < buttons.size(); i++)
-        window->draw(buttons[i]);
-
-    // if (state == MAIN_MENU) {
-    //     window->draw(newGameButton);
-    //     window->draw();
-    //     window->draw();
-    // }
-
-    // if (state == SETTINGS)
-
-    // if (state == EXIT)
-            
+    for (int i = 0; i < visible.size(); i++)
+        window->draw(visible[i]);
 }
 
 void Menu::addRectButton(Color color, FloatRect bounds) {
     buttons.push_back(*createRect(color, bounds));
+    visible.push_back(buttons.back());
 }
 
 // void Menu::addSpriteButton(Color color, FloatRect bounds) {
@@ -82,6 +78,32 @@ void Menu::setState(menuState newState) {
 
 RectangleShape Menu::getRectButton(int index) {
     return buttons[index];
+}
+
+void Menu::setVisible(int index, bool isVisible) {
+    it = visible.begin();
+
+    if (isVisible) {
+        for (int i = 0; i < index; i++)
+            it++;
+     
+        visible.insert(it, buttons[index]);
+    }
+    else {
+        it = visible.begin();
+
+        for (int i = 0; i < index; i++)
+            it++;
+            
+        visible.erase(it);
+    }
+}
+
+bool Menu::isVisible(int index) {
+    if (visible[index].getPosition() == buttons[index].getPosition())
+        return true;
+    else
+        return false;
 }
 
 
