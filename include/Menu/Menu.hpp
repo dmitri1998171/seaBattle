@@ -10,33 +10,45 @@ class Menu : public IDrawUI {
     private:
         Font font;
         menuState state;
-        vector<RectangleShape> buttons;         // all buttons
-        vector<RectangleShape> visible;         // visible only 
+        vector<RectangleShape> buttons;         // all rectangle shape buttons
+        vector<Sprite> spriteButtons;           // all sprite buttons
+        vector<RectangleShape> visibleRects;    // visible rectangle shapes only 
+        vector<Sprite> visibleSprites;          // visible sprites only 
         vector<Text> texts; 
         vector<RectangleShape>::iterator it;
 
     public:
         Menu(Font* font);
-        int checkToClickRect(RenderWindow* window, RectangleShape rect);
-        int checkToClickSprite(RenderWindow* window, Sprite* button);
-        void draw(RenderWindow *window);
         void addRectButton(Color Color, FloatRect bounds);
-        // void addSpriteButton(Color color, FloatRect bounds);    
-        menuState getState();
-        void setState(menuState newState);
         RectangleShape getRectButton(int index);
+        int checkToClickRect(RenderWindow* window, RectangleShape rect);
         void setVisible(int index, bool isVisible);
         bool isVisible(int index);
+        void addSpriteButton(Texture* texture, Vector2f position);
+        Sprite getSpriteButton(int index);
+        int checkToClickSprite(RenderWindow* window, Sprite button);
         void addText(Vector2f position, string str, int size, Color color, Uint32 style);
         Text* getText(int index);
+        void setState(menuState newState);
+        menuState getState();
+        void draw(RenderWindow *window);
 };
 
 Menu::Menu(Font* font) {
     this->font = *font;
     state = MAIN_MENU;
     buttons.push_back(*addBackground(Color(128, 128, 128)));
-    visible.push_back(buttons.back());
-    it = visible.begin();
+    visibleRects.push_back(buttons.back());
+    it = visibleRects.begin();
+}
+
+void Menu::addRectButton(Color color, FloatRect bounds) {
+    buttons.push_back(*createRect(color, bounds));
+    visibleRects.push_back(buttons.back());
+}
+
+RectangleShape Menu::getRectButton(int index) {
+    return buttons[index];
 }
 
 int Menu::checkToClickRect(RenderWindow* window, RectangleShape rect) {
@@ -48,70 +60,54 @@ int Menu::checkToClickRect(RenderWindow* window, RectangleShape rect) {
         return 0;
 }
 
-int Menu::checkToClickSprite(RenderWindow* window, Sprite* button) {
-    Vector2i mouse_pos = Mouse::getPosition(*window);
-    // IntRect rect = button->getTextureRect();
-
-    if(button->getGlobalBounds().contains(mouse_pos.x, mouse_pos.y)) 
-    // if(rect.contains(mouse_pos)) 
-        return 1;
-    else 
-        return 0;
-}
-
-void Menu::draw(RenderWindow *window) {
-    for (int i = 0; i < visible.size(); i++)
-        window->draw(visible[i]);
-
-    for (int i = 0; i < texts.size(); i++)
-        window->draw(texts[i]);
-}
-
-void Menu::addRectButton(Color color, FloatRect bounds) {
-    buttons.push_back(*createRect(color, bounds));
-    visible.push_back(buttons.back());
-}
-
-// void Menu::addSpriteButton(Color color, FloatRect bounds) {
-//     buttons.push_back(*createRect(color, bounds));
-// }
-
-menuState Menu::getState() {
-    return state;
-}
-
-void Menu::setState(menuState newState) {
-    this->state = newState;
-}
-
-RectangleShape Menu::getRectButton(int index) {
-    return buttons[index];
-}
-
 void Menu::setVisible(int index, bool isVisible) {
-    it = visible.begin();
+    it = visibleRects.begin();
 
     if (isVisible) {
         for (int i = 0; i < index; i++)
             it++;
      
-        visible.insert(it, buttons[index]);
+        visibleRects.insert(it, buttons[index]);
     }
     else {
-        it = visible.begin();
+        it = visibleRects.begin();
 
         for (int i = 0; i < index; i++)
             it++;
             
-        visible.erase(it);
+        visibleRects.erase(it);
     }
 }
 
 bool Menu::isVisible(int index) {
-    if (visible[index].getPosition() == buttons[index].getPosition())
+    if (visibleRects[index].getPosition() == buttons[index].getPosition())
         return true;
     else
         return false;
+}
+
+void Menu::addSpriteButton(Texture* texture, Vector2f position) {
+    Sprite sprite;
+
+    sprite.setTexture(*texture);
+    sprite.setOrigin(sprite.getLocalBounds().width / 2, sprite.getLocalBounds().height / 2);
+    sprite.setPosition(position);
+
+    spriteButtons.push_back(sprite);
+    visibleSprites.push_back(spriteButtons.back());
+}
+
+Sprite Menu::getSpriteButton(int index) {
+    return spriteButtons[index];
+}
+
+int Menu::checkToClickSprite(RenderWindow* window, Sprite button) {
+    Vector2i mouse_pos = Mouse::getPosition(*window);
+
+    if(button.getGlobalBounds().contains(mouse_pos.x, mouse_pos.y)) 
+        return 1;
+    else 
+        return 0;
 }
 
 void Menu::addText(Vector2f position, string str, int size, Color color, Uint32 style) {
@@ -130,6 +126,25 @@ void Menu::addText(Vector2f position, string str, int size, Color color, Uint32 
 
 Text* Menu::getText(int index) {
     return &texts[index];
+}
+
+void Menu::setState(menuState newState) {
+    this->state = newState;
+}
+
+menuState Menu::getState() {
+    return state;
+}
+
+void Menu::draw(RenderWindow *window) {
+    for (int i = 0; i < visibleRects.size(); i++)
+        window->draw(visibleRects[i]);
+    
+    for (int i = 0; i < visibleSprites.size(); i++)
+        window->draw(visibleSprites[i]);
+
+    for (int i = 0; i < texts.size(); i++)
+        window->draw(texts[i]);
 }
 
 #endif

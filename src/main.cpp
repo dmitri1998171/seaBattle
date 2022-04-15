@@ -165,6 +165,8 @@ int main() {
     menu.addText(menu.getRectButton(SETTINGS_BUTTON).getPosition(), "SETTINGS", 40, Color::Black, Text::Bold);
     menu.addText(menu.getRectButton(EXIT_BUTTON).getPosition(), "EXIT", 40, Color::Black, Text::Bold);
 
+    menu.addSpriteButton(&shipsTexture[0], Vector2f(100, 100));
+
     while (window.isOpen()) {
         Event event;
         window.clear();
@@ -175,6 +177,7 @@ int main() {
                     if(menu.isVisible(SETTINGS_BUTTON) == false) {
                         menu.setVisible(SETTINGS_BUTTON, true);
                         menu.getText(1)->setScale(1, 1);        // hide the text
+                        menu.getText(2)->setString("EXIT");
                     }
 
                     while (window.pollEvent(event)) {
@@ -184,6 +187,9 @@ int main() {
                         if(event.type == Event::MouseButtonReleased) {
                             if(event.key.code == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
+
+                                if(menu.checkToClickSprite(&window, menu.getSpriteButton(0)));
+                                    LOG(INFO, "spriteButton was clicked!")
 
                                 if(menu.checkToClickRect(&window, menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
@@ -208,6 +214,7 @@ int main() {
                     if(menu.isVisible(SETTINGS_BUTTON) == true) {
                         menu.setVisible(SETTINGS_BUTTON, false);
                         menu.getText(1)->setScale(0, 0);         // hide the text
+                        menu.getText(2)->setString("MENU");
                     }
 
                     while (window.pollEvent(event)) {
