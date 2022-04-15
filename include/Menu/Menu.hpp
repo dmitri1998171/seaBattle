@@ -8,13 +8,15 @@ enum menuState {MAIN_MENU, PAUSE, SETTINGS, EXIT};
 
 class Menu : public IDrawUI {
     private:
+        Font font;
         menuState state;
         vector<RectangleShape> buttons;         // all buttons
         vector<RectangleShape> visible;         // visible only 
+        vector<Text> texts; 
         vector<RectangleShape>::iterator it;
 
     public:
-        Menu();
+        Menu(Font* font);
         int checkToClickRect(RenderWindow* window, RectangleShape rect);
         int checkToClickSprite(RenderWindow* window, Sprite* button);
         void draw(RenderWindow *window);
@@ -25,9 +27,12 @@ class Menu : public IDrawUI {
         RectangleShape getRectButton(int index);
         void setVisible(int index, bool isVisible);
         bool isVisible(int index);
+        void addText(Vector2f position, string str, int size, Color color, Uint32 style);
+        Text getText(int index);
 };
 
-Menu::Menu() {
+Menu::Menu(Font* font) {
+    this->font = *font;
     state = MAIN_MENU;
     buttons.push_back(*addBackground(Color(128, 128, 128)));
     visible.push_back(buttons.back());
@@ -57,6 +62,9 @@ int Menu::checkToClickSprite(RenderWindow* window, Sprite* button) {
 void Menu::draw(RenderWindow *window) {
     for (int i = 0; i < visible.size(); i++)
         window->draw(visible[i]);
+
+    for (int i = 0; i < texts.size(); i++)
+        window->draw(texts[i]);
 }
 
 void Menu::addRectButton(Color color, FloatRect bounds) {
@@ -106,5 +114,22 @@ bool Menu::isVisible(int index) {
         return false;
 }
 
+void Menu::addText(Vector2f position, string str, int size, Color color, Uint32 style) {
+    Text text;
+    
+    text.setFont(font); 
+    text.setString(str);
+    text.setCharacterSize(size); 
+    text.setFillColor(color);
+    text.setStyle(style);
+    text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+    text.setPosition(position);
+
+    texts.push_back(text);
+}
+
+Text Menu::getText(int index) {
+    return texts[index];
+}
 
 #endif

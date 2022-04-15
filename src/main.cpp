@@ -61,7 +61,7 @@ void drawShipsSprite(RenderWindow *window, Sprite shipsSrite[]) {
         window->draw(shipsSrite[i]);
 }
 
-void setText(char symbol, Text *text, Font *font, RectangleShape rect) {
+void setBorderBoxText(char symbol, Text *text, Font *font, RectangleShape rect) {
     text->setFont(*font); 
     text->setString(symbol);
     text->setCharacterSize(24); 
@@ -70,17 +70,17 @@ void setText(char symbol, Text *text, Font *font, RectangleShape rect) {
     text->setPosition(rect.getPosition().x + rect.getSize().x / 4, rect.getPosition().y);
 }
 
-void addText(Text numberColumn[], Text letterLine[], Font *font, RectangleShape cell[GRID_STEP][GRID_STEP]) {
+void addBorderBoxText(Text numberColumn[], Text letterLine[], Font *font, RectangleShape cell[GRID_STEP][GRID_STEP]) {
     string letters = "ABCDEFGHIJ";
     
     for (int i = 0; i < 10; i++) {
-        // lines of letters
-        setText(letters[i], &letterLine[i], font, cell[3 + i][2]);     // Left 
-        setText(letters[i], &letterLine[10 + i], font, cell[17 + i][2]);   // Right 
+        // lines of the letters
+        setBorderBoxText(letters[i], &letterLine[i], font, cell[3 + i][2]);     // Left 
+        setBorderBoxText(letters[i], &letterLine[10 + i], font, cell[17 + i][2]);   // Right 
         
-        // Columns of numbers
-        setText(*to_string(i + 1).c_str(), &numberColumn[i], font, cell[2][3 + i]);    // Left
-        setText(*to_string(i + 1).c_str(), &numberColumn[10 + i], font, cell[16][3 + i]); // Right
+        // Columns of the numbers
+        setBorderBoxText(*to_string(i + 1).c_str(), &numberColumn[i], font, cell[2][3 + i]);    // Left
+        setBorderBoxText(*to_string(i + 1).c_str(), &numberColumn[10 + i], font, cell[16][3 + i]); // Right
     }
 
     numberColumn[9].setString("10");
@@ -153,12 +153,16 @@ int main() {
         shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
 
 /* Create menu */
-    Menu menu;
+    Menu menu(&font);
 
     // add buttons
     menu.addRectButton(Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
     menu.addRectButton(Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
     menu.addRectButton(Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
+
+    menu.addText(menu.getRectButton(1).getPosition(), "PLAY", 40, Color::Black, Text::Bold);
+    menu.addText(menu.getRectButton(2).getPosition(), "SETTINGS", 40, Color::Black, Text::Bold);
+    menu.addText(menu.getRectButton(3).getPosition(), "EXIT", 40, Color::Black, Text::Bold);
 
     while (window.isOpen()) {
         Event event;
@@ -255,7 +259,7 @@ int main() {
                         rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
 
                     setShipsSprite(shipsSrite, shipsTexture, cell, isVertical);
-                    addText(numberColumn, letterLine, &font, cell);
+                    addBorderBoxText(numberColumn, letterLine, &font, cell);
                     isCreated = true;
                 }
 
