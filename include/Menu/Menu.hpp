@@ -6,6 +6,9 @@
 #include "Menu/SpriteButton.hpp"
 #include <iostream>
 
+#define WIDTH 1216
+#define HEIGHT 512
+
 enum menuState {MAIN_MENU, PAUSE, SETTINGS, EXIT};
 
 class Menu {

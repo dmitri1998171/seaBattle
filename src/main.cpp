@@ -4,6 +4,9 @@
 #include "Menu/Menu.hpp"
 #include "MyLogger.hpp"
 
+#define WIDTH 1216
+#define HEIGHT 512
+
 #define RECT_SIZE 32
 #define OFFSET 3
 #define GRID_STEP WIDTH / RECT_SIZE
@@ -174,12 +177,12 @@ int main() {
         switch (currentState) {
             case MENU:
                 if(menu.getState() == MAIN_MENU) {
-                    if(menu.RectButton().isVisible(SETTINGS_BUTTON) == false) {
+                    // if(menu.RectButton().isVisible(SETTINGS_BUTTON) == false) {
                         // LOG(INFO, "Visible is false")
                         // menu.RectButton().setVisible(SETTINGS_BUTTON, true);
-                        menu.getText(SETTINGS_BUTTON)->setScale(1, 1);        // hide the text
-                        menu.getText(EXIT)->setString("EXIT");
-                    }
+                    //     menu.getText(SETTINGS_BUTTON)->setScale(1, 1);        // hide the text
+                    //     menu.getText(EXIT)->setString("EXIT");
+                    // }
 
                     while (window.pollEvent(event)) {
                         if (event.type == Event::Closed)
@@ -207,12 +210,12 @@ int main() {
                 }
 
                 if(menu.getState() == PAUSE) {
-                    if(menu.RectButton().isVisible(SETTINGS_BUTTON) == true) {
+                    // if(menu.RectButton().isVisible(SETTINGS_BUTTON) == true) {
                         // LOG(INFO, "Visible is true")
                         // menu.RectButton().setVisible(SETTINGS_BUTTON, false);
-                        menu.getText(SETTINGS_BUTTON)->setScale(0, 0);         // hide the text
-                        menu.getText(EXIT)->setString("MENU");
-                    }
+                    //     menu.getText(SETTINGS_BUTTON)->setScale(0, 0);         // hide the text
+                    //     menu.getText(EXIT)->setString("MENU");
+                    // }
 
                     while (window.pollEvent(event)) {
                         if (event.type == Event::Closed)
@@ -265,7 +268,7 @@ int main() {
                     createBorderBox(rightBorderBox);
 
                     for (int i = 0; i < 4; i++)
-                        rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBorderBox
+                        rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBox
 
                     setShipsSprite(shipsSrite, shipsTexture, cell, isVertical);
                     addBorderBoxText(numberColumn, letterLine, &font, cell);

@@ -2,8 +2,6 @@
 #include <cstring>
 
 #define FONT_SIZE 14
-#define WIDTH 1216
-#define HEIGHT 512
 
 Texture loadTexture(string path) {
     Image image;
@@ -22,10 +20,6 @@ void sprite_loader(Sprite* sprite, Texture* texture, string path, float x, float
     loadTexture(path);
     sprite->setTexture(*texture);
     sprite->setPosition(x, y);
-}
-
-RectangleShape* IDrawUI::addBackground(Color color) {
-    return createRect(color, FloatRect(0, 0, WIDTH * 2, HEIGHT * 2));
 }
 
 RectangleShape* IDrawUI::createRect(Color color, FloatRect bounds) {

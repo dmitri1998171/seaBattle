@@ -5,9 +5,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 
-#define WIDTH 1216
-#define HEIGHT 512
-
 using namespace sf;
 using namespace std;
 

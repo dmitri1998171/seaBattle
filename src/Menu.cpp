@@ -7,7 +7,6 @@ Menu::Menu(Font* font) {
     background.setFillColor(Color(128, 128, 128));
     background.setPosition(0, 0);
     background.setSize(Vector2f(WIDTH, HEIGHT));
-    // background = *addBackground(Color(128, 128, 128));
 }
 
 
