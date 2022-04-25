@@ -9,7 +9,7 @@
 #define GRID_STEP WIDTH / RECT_SIZE
 
 enum State {MENU, PLAY, WIN, LOSE};
-enum ButtonsText {PLAY_BUTTON = 1, SETTINGS_BUTTON, EXIT_BUTTON};
+enum ButtonsText {PLAY_BUTTON, SETTINGS_BUTTON, EXIT_BUTTON};
 
 void createBorderBox(RectangleShape BorderBox[]) {
     BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
@@ -165,7 +165,7 @@ int main() {
     menu.addText(menu.getRectButton(SETTINGS_BUTTON).getPosition(), "SETTINGS", 40, Color::Black, Text::Bold);
     menu.addText(menu.getRectButton(EXIT_BUTTON).getPosition(), "EXIT", 40, Color::Black, Text::Bold);
 
-    menu.addSpriteButton(&shipsTexture[0], Vector2f(100, 100));
+    // menu.addSpriteButton(&shipsTexture[0], Vector2f(100, 100));
 
     while (window.isOpen()) {
         Event event;
@@ -174,10 +174,11 @@ int main() {
         switch (currentState) {
             case MENU:
                 if(menu.getState() == MAIN_MENU) {
-                    if(menu.isVisible(SETTINGS_BUTTON) == false) {
-                        menu.setVisible(SETTINGS_BUTTON, true);
-                        menu.getText(1)->setScale(1, 1);        // hide the text
-                        menu.getText(2)->setString("EXIT");
+                    if(menu.RectButton().isVisible(SETTINGS_BUTTON) == false) {
+                        // LOG(INFO, "Visible is false")
+                        // menu.RectButton().setVisible(SETTINGS_BUTTON, true);
+                        menu.getText(SETTINGS_BUTTON)->setScale(1, 1);        // hide the text
+                        menu.getText(EXIT)->setString("EXIT");
                     }
 
                     while (window.pollEvent(event)) {
@@ -186,22 +187,17 @@ int main() {
 
                         if(event.type == Event::MouseButtonReleased) {
                             if(event.key.code == Mouse::Left) {
-                                Vector2i mousePos = Mouse::getPosition(window);
-
-                                if(menu.checkToClickSprite(&window, menu.getSpriteButton(0)));
-                                    LOG(INFO, "spriteButton was clicked!")
-
-                                if(menu.checkToClickRect(&window, menu.getRectButton(PLAY_BUTTON))) {
+                                if(menu.checkToClick(&window, menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
                                     currentState = PLAY;
                                 }
 
-                                if(menu.checkToClickRect(&window, menu.getRectButton(SETTINGS_BUTTON))) {
+                                if(menu.checkToClick(&window, menu.getRectButton(SETTINGS_BUTTON))) {
                                     LOG(INFO, "Yellow button was clicked!")
                                     menu.setState(SETTINGS);
                                 }
 
-                                if(menu.checkToClickRect(&window, menu.getRectButton(EXIT_BUTTON))) {
+                                if(menu.checkToClick(&window, menu.getRectButton(EXIT_BUTTON))) {
                                     LOG(INFO, "Red button was clicked!")
                                     exit(0);
                                 }
@@ -211,10 +207,11 @@ int main() {
                 }
 
                 if(menu.getState() == PAUSE) {
-                    if(menu.isVisible(SETTINGS_BUTTON) == true) {
-                        menu.setVisible(SETTINGS_BUTTON, false);
-                        menu.getText(1)->setScale(0, 0);         // hide the text
-                        menu.getText(2)->setString("MENU");
+                    if(menu.RectButton().isVisible(SETTINGS_BUTTON) == true) {
+                        // LOG(INFO, "Visible is true")
+                        // menu.RectButton().setVisible(SETTINGS_BUTTON, false);
+                        menu.getText(SETTINGS_BUTTON)->setScale(0, 0);         // hide the text
+                        menu.getText(EXIT)->setString("MENU");
                     }
 
                     while (window.pollEvent(event)) {
@@ -231,12 +228,12 @@ int main() {
                             if(event.key.code == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
 
-                                if(menu.checkToClickRect(&window, menu.getRectButton(PLAY_BUTTON))) {
+                                if(menu.checkToClick(&window, menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
                                     currentState = PLAY;
                                 }
 
-                                if(menu.checkToClickRect(&window, menu.getRectButton(EXIT_BUTTON))) {
+                                if(menu.checkToClick(&window, menu.getRectButton(EXIT_BUTTON))) {
                                     LOG(INFO, "Red button was clicked!")
                                     currentState = MENU;
                                     menu.setState(MAIN_MENU);

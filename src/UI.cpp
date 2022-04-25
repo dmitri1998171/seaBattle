@@ -58,12 +58,12 @@ RectangleShape IDrawUI::createCircleAngleRect(Color color, int width, int height
     // return *rect;
 }
 
-Sprite IDrawUI::addButton(string texturePath, Vector2f position) {
-    Sprite* sprite;
+Sprite* IDrawUI::createSprite(string texturePath, Vector2f position) {
+    Sprite* sprite = new Sprite;
 
     sprite->setTexture(loadTexture(texturePath));
     sprite->setPosition(position);
     sprite->setOrigin(sprite->getGlobalBounds().width / 2, sprite->getGlobalBounds().height / 2);
 
-    return *sprite;
+    return sprite;
 }
