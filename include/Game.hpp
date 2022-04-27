@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "Menu/Menu.hpp"
 
 #define WIDTH 1216
 #define HEIGHT 512
@@ -22,6 +23,10 @@ class Ship {
         Sprite sprite;
 
     public:
+        Sprite operator[](int index) {
+            return sprite;
+        }
+
         void setTexture(Texture* _texture) {
             this->texture = *_texture;
             sprite.setTexture(texture);
@@ -42,8 +47,6 @@ class Ship {
 class Map {
     private:
         Font font;
-        Color liveCellColor;
-        Color deathCellColor;    
         Text letterLine[20];
         Text numberColumn[20];
         RectangleShape leftBorderBox[4];
@@ -51,9 +54,9 @@ class Map {
         RectangleShape cell[GRID_STEP][GRID_STEP];
 
     public:
-        Map() {
-            liveCellColor = Color::White;
-            deathCellColor = Color(192, 192, 192);
+
+        void setFont(Font* font) {
+            this->font = *font;
         }
     
         void createBorderBox(RectangleShape BorderBox[]) {
@@ -74,7 +77,7 @@ class Map {
             for(int i = 0; i < GRID_STEP; i++) {
                 for(int j = 0; j < GRID_STEP; j++) {
                     cell[i][j].setSize(Vector2f(RECT_SIZE, RECT_SIZE));
-                    cell[i][j].setFillColor(liveCellColor);
+                    cell[i][j].setFillColor(Color::White);
                     cell[i][j].setOutlineThickness(1);
                     cell[i][j].setOutlineColor(Color::Black);
                     cell[i][j].setPosition((i * RECT_SIZE) + 1, (j * RECT_SIZE));
@@ -142,19 +145,30 @@ class Map {
         RectangleShape* getCell(int i, int j) {
             return &cell[i][j];
         }
+
+        RectangleShape getLeftBorder(int index) {
+            return leftBorderBox[index];
+        }
+
+        RectangleShape getRightBorder(int index) {
+            return rightBorderBox[index];
+        }
 };
 
 class Game {
     private:
         Map map;
         Ship ship[10];
-        
-        bool isCreated = false;
-        int chooseIndex = -1;           // Need for ship placement
-        State currentState = MENU;
 
+        int chooseIndex;   // Need for ship placement
+        
     public:
-        void createMap() {
+        Game() {
+            chooseIndex = -1;
+        }
+
+        void createMap(Font* font) {
+            map.setFont(font);
             map.createGrid();
             map.addBorders();
             map.addBorderBoxText();
@@ -200,6 +214,80 @@ class Game {
         void drawShips(RenderWindow *window) {
             for (int i = 0; i < 10; i++)
                 window->draw(*ship[i].getShip());
+        }
+
+
+        void update(RenderWindow* window, Event* event, Menu* menu, State* currentState) {
+            while (window->pollEvent(*event)) {
+                    if (event->type == Event::Closed)
+                        window->close();
+
+                    if(event->type == Event::KeyReleased) {
+                        if(event->key.code == Keyboard::R) {
+                            if(chooseIndex > -1) { // If ship was chosen
+                                ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
+                                chooseIndex = -1;
+                            }
+                        }
+
+                        if(event->key.code == Keyboard::Escape) {
+                            *currentState = MENU;
+                            menu->setState(PAUSE);
+                        }
+                    }
+
+                    if(event->type == Event::MouseButtonReleased) {
+                        if(event->key.code == Mouse::Left) {
+                            Vector2i mousePos = Mouse::getPosition(*window);
+
+                            // LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
+
+                            for(int i = 0; i < GRID_STEP; i++) 
+                                for(int j = 0; j < GRID_STEP; j++) 
+                                    if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                        map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                                        
+                                        if(chooseIndex > -1) {      // If ship was chosen
+                                            if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
+                                                ship[chooseIndex].getShip()->setPosition(map.getCell(i, j)->getPosition());
+                                                ship[chooseIndex].getShip()->move(16, 16);   // Eccentricity compensation (setOrigin)
+
+                                                for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
+                                                    if(ship[chooseIndex].getShip()->getGlobalBounds().intersects(map.getLeftBorder(k).getGlobalBounds())) {
+                                                        ship[chooseIndex].getShip()->setColor(Color::Red);
+                                                        // LOG(WARNING, "The ship have collision with a border!")
+                                                        break;
+                                                    }
+                                                    else
+                                                        ship[chooseIndex].getShip()->setColor(Color::White);
+                                                }
+
+                                                for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
+                                                    if(chooseIndex != k)
+                                                        if(ship[chooseIndex].getShip()->getGlobalBounds().left >= ship[k].getShip()->getGlobalBounds().left - 32 && 
+                                                        ship[chooseIndex].getShip()->getGlobalBounds().left <= ship[k].getShip()->getGlobalBounds().left + 32) {
+                                                            if(ship[chooseIndex].getShip()->getGlobalBounds().top >= ship[k].getShip()->getGlobalBounds().top - 32 && 
+                                                            ship[chooseIndex].getShip()->getGlobalBounds().top <= ship[k].getShip()->getGlobalBounds().top + 32)
+                                                                ship[chooseIndex].getShip()->setColor(Color::Red);
+                                                                // LOG(WARNING, "The ship have collision with another ship!")
+                                                                break;
+                                                        }
+                                                }
+                                                
+                                                chooseIndex = -1;
+                                            }
+                                        }
+                                        else {  
+                                            for (int i = 0; i < 10; i++)
+                                                if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
+                                                    chooseIndex = i;
+                                        }
+                                        // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
+                                    }
+                        }
+                    }
+                }
+        
         }
 };
 
