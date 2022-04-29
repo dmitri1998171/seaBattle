@@ -17,33 +17,6 @@ using namespace sf;
 
 enum State {MENU, PLAY, WIN, LOSE};
 
-class Ship {
-    private:
-        Texture texture;
-        Sprite sprite;
-
-    public:
-        Sprite operator[](int index) {
-            return sprite;
-        }
-
-        void setTexture(Texture* _texture) {
-            this->texture = *_texture;
-            sprite.setTexture(texture);
-        }
-
-        void createShip(int denominator) {
-            sprite.setTexture(texture);
-            sprite.setOrigin(sprite.getLocalBounds().width / denominator, sprite.getLocalBounds().height / 2);
-            sprite.setScale(0.6, 0.6);
-            sprite.move(16, 16);     // Eccentricity compensation (setOrigin)
-        }
-
-        Sprite* getShip() {
-            return &sprite;
-        }
-};
-
 class Map {
     private:
         Font font;
@@ -155,6 +128,68 @@ class Map {
         }
 };
 
+class Ship {
+    private:
+        Texture texture;
+        Sprite sprite;
+
+        void checkBorderCollision(Map* map) {
+            for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
+                if(sprite.getGlobalBounds().intersects(map->getLeftBorder(k).getGlobalBounds())) {
+                    sprite.setColor(Color::Red);
+                    // LOG(WARNING, "The ship have collision with a border!")
+                    break;
+                }
+                else {
+                    sprite.setColor(Color::White);
+                }
+            }
+        }
+
+        void checkAnotherShipsCollision(Ship *ship, int chooseIndex) {
+            for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
+                if(chooseIndex != k)
+                    if(sprite.getGlobalBounds().left >= ship[k].getShip()->getGlobalBounds().left - 32 && 
+                    sprite.getGlobalBounds().left <= ship[k].getShip()->getGlobalBounds().left + 32) {
+                        if(sprite.getGlobalBounds().top >= ship[k].getShip()->getGlobalBounds().top - 32 && 
+                        sprite.getGlobalBounds().top <= ship[k].getShip()->getGlobalBounds().top + 32)
+                            sprite.setColor(Color::Red);
+                            // LOG(WARNING, "The ship have collision with another ship!")
+                            break;
+                    }
+            }
+        }
+
+    public:
+        void setTexture(Texture* _texture) {
+            this->texture = *_texture;
+            sprite.setTexture(texture);
+        }
+
+        void createShip(int denominator) {
+            sprite.setTexture(texture);
+            sprite.setOrigin(sprite.getLocalBounds().width / denominator, sprite.getLocalBounds().height / 2);
+            sprite.setScale(0.6, 0.6);
+            sprite.move(16, 16);     // Eccentricity compensation (setOrigin)
+        }
+
+        Sprite* getShip() {
+            return &sprite;
+        }
+
+        void update(Map* map, int i, int j, Ship* ship, int *chooseIndex) {                          
+            if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
+                ship[*chooseIndex].getShip()->setPosition(map->getCell(i, j)->getPosition());
+                ship[*chooseIndex].getShip()->move(16, 16);   // Eccentricity compensation (setOrigin)
+
+                ship[*chooseIndex].checkBorderCollision(map);
+                ship[*chooseIndex].checkAnotherShipsCollision(ship, *chooseIndex);
+                
+                *chooseIndex = -1;
+            }
+        }
+};
+
 class Game {
     private:
         Map map;
@@ -219,75 +254,44 @@ class Game {
 
         void update(RenderWindow* window, Event* event, Menu* menu, State* currentState) {
             while (window->pollEvent(*event)) {
-                    if (event->type == Event::Closed)
-                        window->close();
+                if (event->type == Event::Closed)
+                    window->close();
 
-                    if(event->type == Event::KeyReleased) {
-                        if(event->key.code == Keyboard::R) {
-                            if(chooseIndex > -1) { // If ship was chosen
-                                ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
-                                chooseIndex = -1;
-                            }
-                        }
-
-                        if(event->key.code == Keyboard::Escape) {
-                            *currentState = MENU;
-                            menu->setState(PAUSE);
+                if(event->type == Event::KeyReleased) {
+                    if(event->key.code == Keyboard::R) {
+                        if(chooseIndex > -1) { // If ship was chosen
+                            ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
+                            chooseIndex = -1;
                         }
                     }
 
-                    if(event->type == Event::MouseButtonReleased) {
-                        if(event->key.code == Mouse::Left) {
-                            Vector2i mousePos = Mouse::getPosition(*window);
+                    if(event->key.code == Keyboard::Escape) {
+                        *currentState = MENU;
+                        menu->setState(PAUSE);
+                    }
+                }
 
-                            // LOG(INFO, "mousePos: " + to_string(mousePos.x) + " " + to_string(mousePos.y))
+                if(event->type == Event::MouseButtonReleased) {
+                    if(event->key.code == Mouse::Left) {
+                        Vector2i mousePos = Mouse::getPosition(*window);
 
-                            for(int i = 0; i < GRID_STEP; i++) 
-                                for(int j = 0; j < GRID_STEP; j++) 
-                                    if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                        map.getCell(i, j)->setFillColor(Color(192, 192, 192));
-                                        
-                                        if(chooseIndex > -1) {      // If ship was chosen
-                                            if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
-                                                ship[chooseIndex].getShip()->setPosition(map.getCell(i, j)->getPosition());
-                                                ship[chooseIndex].getShip()->move(16, 16);   // Eccentricity compensation (setOrigin)
+                        for(int i = 0; i < GRID_STEP; i++) {
+                            for(int j = 0; j < GRID_STEP; j++) {
+                                if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                    map.getCell(i, j)->setFillColor(Color(192, 192, 192));
 
-                                                for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
-                                                    if(ship[chooseIndex].getShip()->getGlobalBounds().intersects(map.getLeftBorder(k).getGlobalBounds())) {
-                                                        ship[chooseIndex].getShip()->setColor(Color::Red);
-                                                        // LOG(WARNING, "The ship have collision with a border!")
-                                                        break;
-                                                    }
-                                                    else
-                                                        ship[chooseIndex].getShip()->setColor(Color::White);
-                                                }
-
-                                                for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
-                                                    if(chooseIndex != k)
-                                                        if(ship[chooseIndex].getShip()->getGlobalBounds().left >= ship[k].getShip()->getGlobalBounds().left - 32 && 
-                                                        ship[chooseIndex].getShip()->getGlobalBounds().left <= ship[k].getShip()->getGlobalBounds().left + 32) {
-                                                            if(ship[chooseIndex].getShip()->getGlobalBounds().top >= ship[k].getShip()->getGlobalBounds().top - 32 && 
-                                                            ship[chooseIndex].getShip()->getGlobalBounds().top <= ship[k].getShip()->getGlobalBounds().top + 32)
-                                                                ship[chooseIndex].getShip()->setColor(Color::Red);
-                                                                // LOG(WARNING, "The ship have collision with another ship!")
-                                                                break;
-                                                        }
-                                                }
-                                                
-                                                chooseIndex = -1;
-                                            }
-                                        }
-                                        else {  
-                                            for (int i = 0; i < 10; i++)
-                                                if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
-                                                    chooseIndex = i;
-                                        }
-                                        // LOG(INFO, "cell: " + to_string(i) + " " + to_string(j))
-                                    }
+                                    if(chooseIndex > -1)      // If ship was chosen
+                                        ship[chooseIndex].update(&map, i, j, ship, &chooseIndex);
+                                    else 
+                                        for (int i = 0; i < 10; i++)
+                                            if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
+                                                chooseIndex = i;
+                                }
+                            }
                         }
                     }
                 }
-        
+            }
         }
 };
 
