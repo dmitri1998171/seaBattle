@@ -1,7 +1,7 @@
 #include "Menu/RectButton.hpp"
 
 void RectButton::addObject(Color color, FloatRect bounds) {
-    buttons.push_back(*ui.createRect(color, bounds));
+    buttons.push_back(*createRect(color, bounds));
     visibleButtons.push_back(buttons.back());
 } 
 
@@ -33,4 +33,12 @@ bool RectButton::isVisible(int index) {
 void RectButton::draw(RenderWindow* window) {
     for (int i = 0; i < visibleButtons.size(); i++)
         window->draw(visibleButtons[i]);
+}
+
+int RectButton::capacity() {
+    return buttons.size();
+}
+
+int RectButton::size() {
+    return visibleButtons.size();
 }

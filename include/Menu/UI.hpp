@@ -8,7 +8,7 @@
 using namespace sf;
 using namespace std;
 
-Texture loadTexture(string path);
+Texture* loadTexture(string path);
 void sprite_loader(Sprite* sprite, Texture* texture, string path, float x, float y);
 
 class IDrawUI {

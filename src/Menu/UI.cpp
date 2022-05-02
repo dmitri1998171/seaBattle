@@ -3,16 +3,16 @@
 
 #define FONT_SIZE 14
 
-Texture loadTexture(string path) {
+Texture* loadTexture(string path) {
     Image image;
-    Texture texture;
+    Texture* texture = new Texture;
 
 	if(!image.loadFromFile(path)) {
         // LOG(ERROR, "Can't load a texture!");
         exit(1);
     }
 
-    texture.loadFromImage(image);
+    texture->loadFromImage(image);
     return texture;
 }
 
@@ -55,7 +55,7 @@ RectangleShape IDrawUI::createCircleAngleRect(Color color, int width, int height
 Sprite* IDrawUI::createSprite(string texturePath, Vector2f position) {
     Sprite* sprite = new Sprite;
 
-    sprite->setTexture(loadTexture(texturePath));
+    sprite->setTexture(*loadTexture(texturePath));
     sprite->setPosition(position);
     sprite->setOrigin(sprite->getGlobalBounds().width / 2, sprite->getGlobalBounds().height / 2);
 

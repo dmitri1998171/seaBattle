@@ -27,8 +27,12 @@ void Menu::addSpriteButton(string texturePath, Vector2f position) {
     spriteButton.addObject(texturePath, position);
 }
 
-SpriteButton* Menu::getSpriteButton() {
-    return &spriteButton;
+Sprite Menu::getSpriteButton(int index) {
+    return  spriteButton.getObject(index);
+}
+
+SpriteButton Menu::SpriteButton() {
+    return spriteButton;
 }
 
 
@@ -66,11 +70,16 @@ menuState Menu::getState() {
 
 void Menu::draw(RenderWindow *window) {
     window->draw(background);
-    // for (int i = 0; i < visibleRects.size(); i++)
-    //     window->draw(visibleRects[i]);
-
     rectButton.draw(window);
-    // spriteButton.draw(window);
+    spriteButton.draw(window);
     drawTexts(window);
     
+}
+
+void Menu::setMenuVisible(bool isVisible) {
+    for (int i = 0; i < rectButton.size(); i++)
+        rectButton.setVisible(i, isVisible);
+
+    for (int i = 0; i < spriteButton.size(); i++)
+        spriteButton.setVisible(i, isVisible);
 }

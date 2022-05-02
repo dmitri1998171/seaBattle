@@ -1,7 +1,7 @@
 #include "Menu/SpriteButton.hpp"
 
 void SpriteButton::addObject(string texturePath, Vector2f position) {
-    buttons.push_back(*ui.createSprite(texturePath, position));
+    buttons.push_back(*createSprite(texturePath, position));
     visibleButtons.push_back(buttons.back());
 } 
 
@@ -29,7 +29,7 @@ void SpriteButton::setVisible(int index, bool isVisible) {
 }
 
 bool SpriteButton::isVisible(int index) {
-    if (visibleButtons[index].getPosition() == buttons[index].getPosition())
+    if (visibleButtons[index].getTexture() == buttons[index].getTexture())
         return true;
     else
         return false;
@@ -40,3 +40,10 @@ void SpriteButton::draw(RenderWindow* window) {
         window->draw(visibleButtons[i]);
 }
 
+int SpriteButton::capacity() {
+    return buttons.size();
+}
+
+int SpriteButton::size() {
+    return visibleButtons.size();
+}

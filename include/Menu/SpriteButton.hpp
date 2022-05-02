@@ -2,8 +2,8 @@
 
 class SpriteButton : public Object {
     private:
-        vector<Sprite> buttons;         // all rectangle shape buttons
-        vector<Sprite> visibleButtons;    // visible rectangle shapes only 
+        vector<Sprite> buttons;         // all sprite buttons
+        vector<Sprite> visibleButtons;    // visible sprite buttons only 
         vector<Sprite>::iterator it;
 
     public:
@@ -13,4 +13,6 @@ class SpriteButton : public Object {
         void setVisible(int index, bool isVisible);
         bool isVisible(int index);
         void draw(RenderWindow* window);
+        int capacity();
+        int size();
 };

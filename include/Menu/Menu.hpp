@@ -33,7 +33,8 @@ class Menu {
         RectButton RectButton();
 
         void addSpriteButton(string texturePath, Vector2f position);
-        SpriteButton* getSpriteButton();
+        Sprite getSpriteButton(int index);
+        SpriteButton SpriteButton();
         
         void addText(Vector2f position, string str, int size, Color color, Uint32 style);
         Text* getText(int index);
@@ -53,6 +54,7 @@ class Menu {
         }
 
         void draw(RenderWindow *window);
+        void setMenuVisible(bool isVisible);
 };
 
 #endif

@@ -37,11 +37,11 @@ int main() {
     loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
     
     for (int i = 0; i < 4; i++)
-        shipsTexture[i] = loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
+        shipsTexture[i] = *loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
 
 /* Create menu */
     Menu menu(&font);
-
+    
     // add buttons
     menu.addRectButton(Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
     menu.addRectButton(Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
@@ -50,8 +50,6 @@ int main() {
     menu.addText(menu.getRectButton(PLAY_BUTTON).getPosition(), "PLAY", 40, Color::Black, Text::Bold);
     menu.addText(menu.getRectButton(SETTINGS_BUTTON).getPosition(), "SETTINGS", 40, Color::Black, Text::Bold);
     menu.addText(menu.getRectButton(EXIT_BUTTON).getPosition(), "EXIT", 40, Color::Black, Text::Bold);
-
-    // menu.addSpriteButton(&shipsTexture[0], Vector2f(100, 100));
 
     while (window.isOpen()) {
         Event event;
@@ -93,6 +91,8 @@ int main() {
                 }
 
                 if(menu.getState() == PAUSE) {
+                    // menu.setMenuVisible(true);
+
                     // if(menu.RectButton().isVisible(SETTINGS_BUTTON) == true) {
                         // LOG(INFO, "Visible is true")
                         // menu.RectButton().setVisible(SETTINGS_BUTTON, false);
@@ -155,6 +155,7 @@ int main() {
                 // Draw all
                 game.drawMap(&window);
                 game.drawShips(&window);
+                game.drawOther(&window);
                 break;
             
             case WIN:

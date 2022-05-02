@@ -17,4 +17,6 @@ class RectButton : public Object {
         void setVisible(int index, bool isVisible);
         bool isVisible(int index);
         void draw(RenderWindow* window);
+        int capacity();
+        int size();
 };

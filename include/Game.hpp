@@ -17,11 +17,15 @@ class Game {
         Map map;
         Ship ship[10];
 
+        IDrawUI ui;
+        Sprite playButton;
         int chooseIndex;   // Need for ship placement
+        bool isPlacemented = false;
         
     public:
         Game() {
             chooseIndex = -1;
+            playButton = *ui.createSprite("./media/img/play_button.png", Vector2f(WIDTH - 96, HEIGHT - 96));
         }
 
         void createMap(Font* font) {
@@ -73,40 +77,56 @@ class Game {
                 window->draw(*ship[i].getShip());
         }
 
+        void drawOther(RenderWindow *window) {
+            if(!isPlacemented)
+                window->draw(playButton);
+            
+        }
+        
 
         void update(RenderWindow* window, Event* event, Menu* menu, State* currentState) {
             while (window->pollEvent(*event)) {
                 if (event->type == Event::Closed)
                     window->close();
 
-                if(event->type == Event::KeyReleased) {
-                    if(event->key.code == Keyboard::R) {
-                        if(chooseIndex > -1) { // If ship was chosen
-                            ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
-                            chooseIndex = -1;
+                if(isPlacemented == false) {    // the Ships placement stage
+                    if(event->type == Event::KeyReleased) {
+                        if(event->key.code == Keyboard::R) {
+                            if(chooseIndex > -1) { // If ship was chosen
+                                ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
+                                chooseIndex = -1;
+                            }
+                        }
+                 
+                        if(event->key.code == Keyboard::Escape) {
+                            *currentState = MENU;
+                            menu->setState(PAUSE);
                         }
                     }
 
-                    if(event->key.code == Keyboard::Escape) {
-                        *currentState = MENU;
-                        menu->setState(PAUSE);
-                    }
-                }
+                    if(event->type == Event::MouseButtonReleased) {
+                        if(event->key.code == Mouse::Left) {
+                            Vector2i mousePos = Mouse::getPosition(*window);
 
-                if(event->type == Event::MouseButtonReleased) {
-                    if(event->key.code == Mouse::Left) {
-                        Vector2i mousePos = Mouse::getPosition(*window);
+                            if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                isPlacemented = true;
+                                cout << "playButton" << endl;
+                            }
 
-                        for(int i = 0; i < GRID_STEP; i++) {
-                            for(int j = 0; j < GRID_STEP; j++) {
-                                if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                    map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                            for(int i = 0; i < GRID_STEP; i++) {
+                                for(int j = 0; j < GRID_STEP; j++) {
+                                    if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                        map.getCell(i, j)->setFillColor(Color(192, 192, 192));
 
-                                    ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos);
+                                        ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos);
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                else {      // Playing the game stage
+
                 }
             }
         }
