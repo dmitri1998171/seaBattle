@@ -10,15 +10,19 @@ class Ship {
     private:
         Texture texture;
         Sprite sprite;
+        bool _isPlaced;
 
-        void checkBorderCollision(Map* map);
-        void checkAnotherShipsCollision(Ship *ship, int chooseIndex);
+        bool checkBorderCollision(Map* map);
+        bool checkAnotherShipsCollision(Ship *ship, int chooseIndex);
 
     public:
+        Ship();
         void setTexture(Texture* _texture);
         void createShip(int denominator);
         Sprite* getShip();
-        void update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i mousePos);
+        void update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i mousePos, bool* placementCheck);
+        bool isPlaced();
+        bool allShipsPlaced(Ship* ship);
 };
 
 #endif

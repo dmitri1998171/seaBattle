@@ -21,11 +21,13 @@ class Game {
         Sprite playButton;
         int chooseIndex;   // Need for ship placement
         bool isPlacemented = false;
+        bool placementCheck = false;
         
     public:
         Game() {
             chooseIndex = -1;
             playButton = *ui.createSprite("./media/img/play_button.png", Vector2f(WIDTH - 96, HEIGHT - 96));
+            playButton.setColor(Color(255, 255, 255, 100));
         }
 
         void createMap(Font* font) {
@@ -90,6 +92,12 @@ class Game {
                     window->close();
 
                 if(isPlacemented == false) {    // the Ships placement stage
+                    if(placementCheck) 
+                        playButton.setColor(Color(255, 255, 255, 255));
+                    else
+                        playButton.setColor(Color(255, 255, 255, 100));
+
+
                     if(event->type == Event::KeyReleased) {
                         if(event->key.code == Keyboard::R) {
                             if(chooseIndex > -1) { // If ship was chosen
@@ -109,16 +117,15 @@ class Game {
                             Vector2i mousePos = Mouse::getPosition(*window);
 
                             if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                isPlacemented = true;
-                                cout << "playButton" << endl;
+                                if(placementCheck) 
+                                    isPlacemented = true;
                             }
 
                             for(int i = 0; i < GRID_STEP; i++) {
                                 for(int j = 0; j < GRID_STEP; j++) {
                                     if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                        map.getCell(i, j)->setFillColor(Color(192, 192, 192));
-
-                                        ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos);
+                                        // map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                                        ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
                                     }
                                 }
                             }
