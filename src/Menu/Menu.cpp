@@ -1,9 +1,12 @@
 
 #include "Menu/Menu.hpp"
 
-Menu::Menu(Font* font) {
+Menu::Menu(RenderWindow* window, Font* font) {
     this->font = *font;
     state = MAIN_MENU;
+
+    this->window = window;
+
     background.setFillColor(Color(128, 128, 128));
     background.setPosition(0, 0);
     background.setSize(Vector2f(WIDTH, HEIGHT));
@@ -54,7 +57,7 @@ Text* Menu::getText(int index) {
     return &texts[index];
 }
 
-void Menu::drawTexts(RenderWindow *window) {
+void Menu::drawTexts() {
     for (int i = 0; i < texts.size(); i++)
         window->draw(texts[i]);
 }
@@ -68,11 +71,12 @@ menuState Menu::getState() {
     return state;
 }
 
-void Menu::draw(RenderWindow *window) {
+
+void Menu::draw() {
     window->draw(background);
     rectButton.draw(window);
     spriteButton.draw(window);
-    drawTexts(window);
+    drawTexts();
     
 }
 
@@ -82,4 +86,16 @@ void Menu::setMenuVisible(bool isVisible) {
 
     for (int i = 0; i < spriteButton.size(); i++)
         spriteButton.setVisible(i, isVisible);
+}
+
+
+void Menu::addMenu() {
+    addRectButton(Color::Green, FloatRect(WIDTH / 2, HEIGHT / 2.35, WIDTH / 6, HEIGHT / 8));
+    addRectButton(Color::Yellow, FloatRect(WIDTH / 2, HEIGHT / 1.7, WIDTH / 6, HEIGHT / 8));
+    addRectButton(Color::Red, FloatRect(WIDTH / 2, HEIGHT / 1.35, WIDTH / 6, HEIGHT / 8));
+
+    addText(getRectButton(PLAY_BUTTON).getPosition(), "PLAY", 40, Color::Black, Text::Bold);
+    addText(getRectButton(SETTINGS_BUTTON).getPosition(), "SETTINGS", 40, Color::Black, Text::Bold);
+    addText(getRectButton(EXIT_BUTTON).getPosition(), "EXIT", 40, Color::Black, Text::Bold);
+
 }

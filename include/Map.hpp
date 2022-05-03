@@ -16,6 +16,7 @@ using namespace std;
 
 class Map {
     private:
+        RenderWindow* window;
         Font font;
         Text letterLine[20];
         Text numberColumn[20];
@@ -24,6 +25,8 @@ class Map {
         RectangleShape cell[GRID_STEP][GRID_STEP];
 
     public:
+        void getWindow(RenderWindow* window);
+
         void setFont(Font* font);
         void createBorderBox(RectangleShape BorderBox[]);
         void createGrid();
@@ -31,10 +34,10 @@ class Map {
 
         void setBorderBoxText(char symbol, Text *text, RectangleShape rect);
         void addBorderBoxText();
-        void drawBorderBoxes(RenderWindow *window);
+        void drawBorderBoxes();
 
-        void drawGrid(RenderWindow *window);
-        void drawText(RenderWindow *window);
+        void drawGrid();
+        void drawText();
 
         RectangleShape* getCell(int i, int j);
         RectangleShape getLeftBorder(int index);

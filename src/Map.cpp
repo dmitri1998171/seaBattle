@@ -1,5 +1,9 @@
 #include "Map.hpp"
 
+void Map::getWindow(RenderWindow* window) {
+    this->window = window;
+}
+
 
 void Map::setFont(Font* font) {
     this->font = *font;
@@ -67,20 +71,20 @@ void Map::addBorderBoxText() {
 }
 
 
-void Map::drawBorderBoxes(RenderWindow *window) {
+void Map::drawBorderBoxes() {
     for (int i = 0; i < 4; i++) {
         window->draw(leftBorderBox[i]);
         window->draw(rightBorderBox[i]);
     }
 }
 
-void Map::drawGrid(RenderWindow *window) {
+void Map::drawGrid() {
     for(int i = 0; i < GRID_STEP; i++) 
         for(int j = 0; j < GRID_STEP; j++) 
             window->draw(cell[i][j]);
 }
 
-void Map::drawText(RenderWindow *window) {
+void Map::drawText() {
     for (int i = 0; i < 20; i++) {
         window->draw(letterLine[i]);
         window->draw(numberColumn[i]);
