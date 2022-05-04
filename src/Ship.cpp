@@ -3,6 +3,7 @@
 
 Ship::Ship() {
     _isPlaced = false;
+    sprite.setColor(Color(255, 255, 255, 100));
 }
 
 bool Ship::checkBorderCollision(Map* map) {
@@ -10,7 +11,6 @@ bool Ship::checkBorderCollision(Map* map) {
         if(sprite.getGlobalBounds().intersects(map->getLeftBorder(k).getGlobalBounds())) {
             sprite.setColor(Color::Red);
             // LOG(WARNING, "The ship have collision with a border!")
-            break;
             return false;
         }
         else {
@@ -55,7 +55,7 @@ Sprite* Ship::getShip() {
 }
 
 void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i mousePos, bool* placementCheck) {     
-    if(*chooseIndex > -1) {    // If ship was chosen
+    if(*chooseIndex > -1) {    // If ship already chosen
         if((i > 2 && i < 13) && (j > 2 && j < 14)) {    // If mouse click was inside the left BorderBox
             _isPlaced = true;
             sprite.setPosition(map->getCell(i, j)->getPosition());
@@ -69,9 +69,11 @@ void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i
         }
     }
     else 
-        for (int i = 0; i < 10; i++)
-            if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) // If the mouse click was on a ship
+        for (int i = 0; i < 10; i++)    // The ship was chosen now
+            if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                ship[i].getShip()->setColor(Color(255, 255, 255, 255));
                 *chooseIndex = i;
+            }
 }
 
 bool Ship::isPlaced() {

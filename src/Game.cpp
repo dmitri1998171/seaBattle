@@ -3,6 +3,8 @@
 Game::Game(RenderWindow* window) {
     this->window = window;
     chooseIndex = -1;
+    isPlacemented = false;
+    placementCheck = false;
 
     map.getWindow(this->window);
 

@@ -21,8 +21,8 @@ class Game {
         RenderWindow* window;
         Sprite playButton;
         int chooseIndex;   // Need for ship placement
-        bool isPlacemented = false;
-        bool placementCheck = false;
+        bool isPlacemented;
+        bool placementCheck;
         
     public:
         Game(RenderWindow* window);
