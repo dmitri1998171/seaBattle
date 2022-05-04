@@ -107,7 +107,6 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
                     for(int i = 0; i < GRID_STEP; i++) {
                         for(int j = 0; j < GRID_STEP; j++) {
                             if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                // map.getCell(i, j)->setFillColor(Color(192, 192, 192));
                                 ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
                             }
                         }
@@ -116,7 +115,34 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
             }
         }
         else {      // Playing the game stage
+            if(playerTurn) {        // Player move
+                if(event->type == Event::MouseButtonReleased) {
+                    if(event->key.code == Mouse::Left) {
+                        Vector2i mousePos = Mouse::getPosition(*window);
+                        
+                        for(int i = 0; i < GRID_STEP; i++) {
+                            for(int j = 0; j < GRID_STEP; j++) {
+                                if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
+                                    if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                    /*
+                                        kill the ship logic
+                                    */ 
+                                    }
+                                    else {
+                                        if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
+                                            map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                                            playerTurn = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else {                  // Computer move
 
+            }
         }
     }
 }
