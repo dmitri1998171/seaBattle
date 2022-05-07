@@ -22,13 +22,14 @@ class Map {
         Text numberColumn[20];
         RectangleShape leftBorderBox[4];
         RectangleShape rightBorderBox[4];
+        RectangleShape leftCollisionBox[4];
         RectangleShape cell[GRID_STEP][GRID_STEP];
 
     public:
         void getWindow(RenderWindow* window);
 
         void setFont(Font* font);
-        void createBorderBox(RectangleShape BorderBox[]);
+        void createBorderBox(RectangleShape BorderBox[], int offset);
         void createGrid();
         void addBorders();
 

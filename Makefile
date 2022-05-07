@@ -3,7 +3,7 @@ INCLUDE = ./include
 LIB = ./lib
 SRC = ./src/*.cpp ./src/Menu/*.cpp
 CC = g++
-CFLAGS = 
+CFLAGS = -g
 LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
 
 $(BIN): 

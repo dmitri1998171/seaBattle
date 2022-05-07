@@ -9,17 +9,20 @@ void Map::setFont(Font* font) {
     this->font = *font;
 }
 
-void Map::createBorderBox(RectangleShape BorderBox[]) {
-    BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - OFFSET);
-    BorderBox[1].setPosition((RECT_SIZE * 13) + OFFSET, RECT_SIZE * 3);
+void Map::createBorderBox(RectangleShape BorderBox[], int offset) {
+    BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - offset);      // top
+    BorderBox[1].setPosition((RECT_SIZE * 13) + offset, RECT_SIZE * 3);     // right
     BorderBox[1].setRotation(90);
-    BorderBox[2].setPosition(RECT_SIZE * 3, (RECT_SIZE * 13) - OFFSET);
-    BorderBox[3].setPosition((RECT_SIZE * 3) + OFFSET, RECT_SIZE * 3);
+    BorderBox[2].setPosition(RECT_SIZE * 3, (RECT_SIZE * 13) + offset);     // bottom
+    BorderBox[3].setPosition((RECT_SIZE * 3) - offset, RECT_SIZE * 3);      // left
     BorderBox[3].setRotation(90);
 
     for (int i = 0; i < 4; i++) {
         BorderBox[i].setSize(Vector2f(RECT_SIZE * 10, 5));
         BorderBox[i].setFillColor(Color::Blue);
+        
+        if(offset > 3)
+            BorderBox[i].setFillColor(Color(0, 0, 0, 0));
     }
 }
 
@@ -36,8 +39,10 @@ void Map::createGrid() {
 }
 
 void Map::addBorders() {
-    createBorderBox(leftBorderBox);
-    createBorderBox(rightBorderBox);
+    createBorderBox(leftBorderBox, 0);
+    createBorderBox(rightBorderBox, 0);
+
+    createBorderBox(leftCollisionBox, 15);
 
     for (int i = 0; i < 4; i++)
         rightBorderBox[i].move(Vector2f(RECT_SIZE * 14, 0)); // Move right BorderBox
@@ -75,6 +80,8 @@ void Map::drawBorderBoxes() {
     for (int i = 0; i < 4; i++) {
         window->draw(leftBorderBox[i]);
         window->draw(rightBorderBox[i]);
+
+        window->draw(leftCollisionBox[i]);
     }
 }
 
@@ -97,7 +104,7 @@ RectangleShape* Map::getCell(int i, int j) {
 }
 
 RectangleShape Map::getLeftBorder(int index) {
-    return leftBorderBox[index];
+    return leftCollisionBox[index];
 }
 
 RectangleShape Map::getRightBorder(int index) {

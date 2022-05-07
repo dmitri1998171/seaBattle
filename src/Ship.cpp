@@ -9,32 +9,25 @@ Ship::Ship() {
 bool Ship::checkBorderCollision(Map* map) {
     for (int k = 0; k < 4; k++) {    // Checking the collision of the ship with the borders
         if(sprite.getGlobalBounds().intersects(map->getLeftBorder(k).getGlobalBounds())) {
-            sprite.setColor(Color::Red);
             // LOG(WARNING, "The ship have collision with a border!")
             return false;
         }
-        else {
-            sprite.setColor(Color::White);
-            return true;
-        }
     }
+
+    return true;
 }
 
 bool Ship::checkAnotherShipsCollision(Ship *ship, int chooseIndex) {
     for (int k = 0; k < 10; k++) {    // Checking the distance of the ship with the another ship
         if(chooseIndex != k) {
-            if(sprite.getGlobalBounds().left >= ship[k].getShip()->getGlobalBounds().left - 32 && 
-            sprite.getGlobalBounds().left <= ship[k].getShip()->getGlobalBounds().left + 32) {
-                if(sprite.getGlobalBounds().top >= ship[k].getShip()->getGlobalBounds().top - 32 && 
-                sprite.getGlobalBounds().top <= ship[k].getShip()->getGlobalBounds().top + 32) {
-                    sprite.setColor(Color::Red);
-                    // LOG(WARNING, "The ship have collision with another ship!")
-                    break;
-                    return false;
-                }
+            if(sprite.getGlobalBounds().intersects(ship[k].getShip()->getGlobalBounds())) {
+                // LOG(WARNING, "The ship have collision with another ship!")
+                return false;
             }
         }
     }
+
+    // sprite.setColor(Color::White);
     return true;
 }
 
@@ -43,10 +36,12 @@ void Ship::setTexture(Texture* _texture) {
     sprite.setTexture(texture);
 }
 
-void Ship::createShip(int denominator) {
+void Ship::createShip(int size, float denominator) {
+    shipSize = size;
+
     sprite.setTexture(texture);
     sprite.setOrigin(sprite.getLocalBounds().width / denominator, sprite.getLocalBounds().height / 2);
-    sprite.setScale(0.6, 0.6);
+    sprite.setScale(0.63, 0.63);
     sprite.move(16, 16);     // Eccentricity compensation (setOrigin)
 }
 
@@ -61,19 +56,22 @@ void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i
             sprite.setPosition(map->getCell(i, j)->getPosition());
             sprite.move(16, 16);   // Eccentricity compensation (setOrigin)
 
-            *placementCheck = checkBorderCollision(map);
-            *placementCheck = checkAnotherShipsCollision(ship, *chooseIndex);
+            *placementCheck = placementRulesCheck(map, ship, *chooseIndex);
             *placementCheck = allShipsPlaced(ship);
-
             *chooseIndex = -1;
         }
     }
     else 
         for (int i = 0; i < 10; i++)    // The ship was chosen now
             if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                ship[i].getShip()->setColor(Color(255, 255, 255, 255));
+                ship[i].getShip()->setColor(Color(0, 255, 0, 255));
                 *chooseIndex = i;
+                break;
             }
+}
+
+void Ship::setPlaceState(bool state) {
+    _isPlaced = state;
 }
 
 bool Ship::isPlaced() {
@@ -88,3 +86,32 @@ bool Ship::allShipsPlaced(Ship* ship) {
     return true;
 }
 
+void Ship::autoPlacement(Map* map, Ship* ship, int chooseIndex) {
+    int x = 3 + rand() % 10;
+    int y = 3 + rand() % 10;
+
+    cout << chooseIndex << ") ";
+    cout << "X: " << x - 2 << " Y: " << y - 2;
+    
+    sprite.setColor(Color(255, 255, 255, 255));
+    sprite.setPosition(map->getCell(x, y)->getPosition());
+    sprite.move(16, 16);
+
+    // if(0 + rand() % 2) 
+    //     sprite.setRotation(sprite.getRotation() - 90);
+}
+
+
+bool Ship::placementRulesCheck(Map* map, Ship* ship, int chooseIndex) {
+    // if(_isPlaced == false) {
+        if(checkBorderCollision(map) && checkAnotherShipsCollision(ship, chooseIndex)) {
+            sprite.setColor(Color::White);
+            cout << "\t1\n";
+            return true;
+        }
+    // }
+
+    sprite.setColor(Color::Red);
+    cout << "\t0\n";
+    return false;
+}

@@ -24,6 +24,7 @@ int main() {
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
     
+    srand(time(0));
     bool isCreated = false;
     Font font;
     Texture shipsTexture[4];
