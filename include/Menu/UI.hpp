@@ -17,6 +17,5 @@ class IDrawUI {
         void addText(Font*, Text*, String, Color, float, float);
         Sprite* createSprite(string texturePath, Vector2f position);
         RectangleShape* createRect(Color, FloatRect);
-        RectangleShape createCircleAngleRect(Color, int, int, int, int);
 };
 #endif

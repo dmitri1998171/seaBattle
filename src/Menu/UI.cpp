@@ -41,17 +41,6 @@ void IDrawUI::addText(Font* font, Text *text, String message, Color color, float
     text->setPosition(Vector2f(x, y));
 }
 
-RectangleShape IDrawUI::createCircleAngleRect(Color color, int width, int height, int x, int y) {
-    int radius = height / 2;
-    // RectangleShape *rect = createRect(color, FloatRect(width, height, x, y));
-    
-    CircleShape left_circle(radius), right_circle(radius);
-    left_circle.setPosition(x, y + radius);
-    right_circle.setPosition(x + width, y + radius);
-
-    // return *rect;
-}
-
 Sprite* IDrawUI::createSprite(string texturePath, Vector2f position) {
     Sprite* sprite = new Sprite;
 

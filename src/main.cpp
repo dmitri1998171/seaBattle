@@ -63,7 +63,7 @@ int main() {
                             window.close();
 
                         if(event.type == Event::MouseButtonReleased) {
-                            if(event.key.code == Mouse::Left) {
+                            if(event.mouseButton.button == Mouse::Left) {
                                 if(menu.checkToClick(menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
                                     currentState = PLAY;
@@ -104,7 +104,7 @@ int main() {
                         }
 
                         if(event.type == Event::MouseButtonReleased) {
-                            if(event.key.code == Mouse::Left) {
+                            if(event.mouseButton.button == Mouse::Left) {
                                 Vector2i mousePos = Mouse::getPosition(window);
 
                                 if(menu.checkToClick(menu.getRectButton(PLAY_BUTTON))) {

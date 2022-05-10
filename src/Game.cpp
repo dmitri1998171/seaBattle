@@ -103,7 +103,7 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
             }
 
             if(event->type == Event::MouseButtonReleased) {
-                if(event->key.code == Mouse::Left) {
+                if(event->mouseButton.button == Mouse::Left) {
                     Vector2i mousePos = Mouse::getPosition(*window);
 
                     if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
@@ -144,7 +144,7 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
         else {      // Playing the game stage
             if(playerTurn) {        // Player move
                 if(event->type == Event::MouseButtonReleased) {
-                    if(event->key.code == Mouse::Left) {
+                    if(event->mouseButton.button == Mouse::Left) {
                         Vector2i mousePos = Mouse::getPosition(*window);
                         
                         for(int i = 0; i < GRID_STEP; i++) {

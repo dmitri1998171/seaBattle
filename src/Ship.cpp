@@ -87,6 +87,7 @@ bool Ship::allShipsPlaced(Ship* ship) {
 }
 
 void Ship::autoPlacement(Map* map, Ship* ship, int chooseIndex) {
+    // int x = 0, y = 0;
     int x = 3 + rand() % 10;
     int y = 3 + rand() % 10;
 
