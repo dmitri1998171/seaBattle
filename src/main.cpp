@@ -1,7 +1,3 @@
-// #include <SFML/Graphics.hpp>
-// using namespace sf;
-
-// #include "Menu/Menu.hpp"
 #include "Game.hpp"
 #include "MyLogger.hpp"
 
@@ -23,8 +19,8 @@ int main() {
     LOG_CONFIG_TIMESTAMP(false)
 
     RenderWindow window(VideoMode(WIDTH, HEIGHT), "Sea Battle");
-    
     srand(time(0));
+    
     bool isCreated = false;
     Font font;
     Texture shipsTexture[4];

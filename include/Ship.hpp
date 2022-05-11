@@ -25,7 +25,7 @@ class Ship {
         void setPlaceState(bool state);
         bool isPlaced();
         bool allShipsPlaced(Ship* ship);
-        void autoPlacement(Map* map, Ship* ship, int chooseIndex);
+        void autoPlacement(Map* map);
         bool placementRulesCheck(Map* map, Ship* ship, int chooseIndex);
 };
 

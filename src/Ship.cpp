@@ -86,14 +86,12 @@ bool Ship::allShipsPlaced(Ship* ship) {
     return true;
 }
 
-void Ship::autoPlacement(Map* map, Ship* ship, int chooseIndex) {
-    // int x = 0, y = 0;
+void Ship::autoPlacement(Map* map) {
     int x = 3 + rand() % 10;
     int y = 3 + rand() % 10;
 
-    cout << chooseIndex << ") ";
-    cout << "X: " << x - 2 << " Y: " << y - 2;
-    
+    cout << "X: " << x - 2 << " Y: " << y - 2 << endl;
+
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
     sprite.move(16, 16);
@@ -104,15 +102,11 @@ void Ship::autoPlacement(Map* map, Ship* ship, int chooseIndex) {
 
 
 bool Ship::placementRulesCheck(Map* map, Ship* ship, int chooseIndex) {
-    // if(_isPlaced == false) {
-        if(checkBorderCollision(map) && checkAnotherShipsCollision(ship, chooseIndex)) {
-            sprite.setColor(Color::White);
-            cout << "\t1\n";
-            return true;
-        }
-    // }
+    if(checkBorderCollision(map) && checkAnotherShipsCollision(ship, chooseIndex)) {
+        sprite.setColor(Color::White);
+        return true;
+    }
 
     sprite.setColor(Color::Red);
-    cout << "\t0\n";
     return false;
 }

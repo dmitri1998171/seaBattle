@@ -35,6 +35,9 @@ class Game {
         void drawShips();
         
         void drawOther();
+        
+        void shipPlacementStage(Event* event, Menu* menu, State* currentState);
+        void playingGameStage(Event* event);
         void update(Event* event, Menu* menu, State* currentState);
 };
 

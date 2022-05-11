@@ -71,8 +71,99 @@ void Game::drawShips() {
 
 void Game::drawOther() {
     if(!isPlacemented) {
-        window->draw(playButton);
         window->draw(autoPlacementButton);
+        window->draw(playButton);
+    }
+}
+
+
+void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
+    if(placementCheck) 
+        playButton.setColor(Color(255, 255, 255, 255));
+
+    if(event->type == Event::KeyReleased) {
+        if(event->key.code == Keyboard::R) {
+            if(chooseIndex > -1) { // If ship was chosen
+                ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
+                chooseIndex = -1;
+            }
+        }
+    
+        if(event->key.code == Keyboard::Escape) {
+            *currentState = MENU;
+            menu->setState(PAUSE);
+        }
+    }
+
+    if(event->type == Event::MouseButtonReleased) {
+        if(event->mouseButton.button == Mouse::Left) {
+            Vector2i mousePos = Mouse::getPosition(*window);
+
+            if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                cout << "!" << endl;
+                
+                if(placementCheck) 
+                    isPlacemented = true;
+            }
+
+            if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                cout << "!!" << endl;
+
+                for (int i = 10; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
+                    do {
+                        cout << i << ") ";
+                        ship[i].autoPlacement(&map);
+                    } while(!ship[i].placementRulesCheck(&map, ship, i));
+                }
+
+                // placementCheck = true;
+                cout << endl;
+            }
+
+            else {
+                cout << "!!!" << endl;
+
+                for(int i = 0; i < GRID_STEP; i++) {
+                    for(int j = 0; j < GRID_STEP; j++) {
+                        if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                            ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Game::playingGameStage(Event* event) {
+    if(playerTurn) {        // Player move
+        if(event->type == Event::MouseButtonReleased) {
+            if(event->mouseButton.button == Mouse::Left) {
+                Vector2i mousePos = Mouse::getPosition(*window);
+                
+                for(int i = 0; i < GRID_STEP; i++) {
+                    for(int j = 0; j < GRID_STEP; j++) {
+                        if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
+                            if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                            /*
+                                kill the ship logic
+                            */ 
+                            }
+                            else {
+                                if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
+                                    map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                                    playerTurn = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    else {                  // Computer move
+
     }
 }
 
@@ -81,95 +172,9 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
         if (event->type == Event::Closed)
             window->close();
 
-        if(isPlacemented == false) {    // the Ships placement stage
-
-            if(placementCheck) 
-                playButton.setColor(Color(255, 255, 255, 255));
-            else
-                playButton.setColor(Color(255, 255, 255, 100));
-
-            if(event->type == Event::KeyReleased) {
-                if(event->key.code == Keyboard::R) {
-                    if(chooseIndex > -1) { // If ship was chosen
-                        ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
-                        chooseIndex = -1;
-                    }
-                }
-            
-                if(event->key.code == Keyboard::Escape) {
-                    *currentState = MENU;
-                    menu->setState(PAUSE);
-                }
-            }
-
-            if(event->type == Event::MouseButtonReleased) {
-                if(event->mouseButton.button == Mouse::Left) {
-                    Vector2i mousePos = Mouse::getPosition(*window);
-
-                    if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        cout << "!" << endl;
-                        
-                        if(placementCheck) 
-                            isPlacemented = true;
-                    }
-
-                    else if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                        cout << "!!" << endl;
-
-                        for (int i = 10; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
-                            do {
-                                ship[i].autoPlacement(&map, ship, i);
-                            } while(!(placementCheck = ship[i].placementRulesCheck(&map, ship, i)));
-                        }
-
-                        // placementCheck = ship[0].allShipsPlaced(ship);
-                        
-                        cout << endl;
-                    }
-
-                    else {
-                        cout << "!!!" << endl;
-
-                        for(int i = 0; i < GRID_STEP; i++) {
-                            for(int j = 0; j < GRID_STEP; j++) {
-                                if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                    ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else {      // Playing the game stage
-            if(playerTurn) {        // Player move
-                if(event->type == Event::MouseButtonReleased) {
-                    if(event->mouseButton.button == Mouse::Left) {
-                        Vector2i mousePos = Mouse::getPosition(*window);
-                        
-                        for(int i = 0; i < GRID_STEP; i++) {
-                            for(int j = 0; j < GRID_STEP; j++) {
-                                if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
-                                    if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                    /*
-                                        kill the ship logic
-                                    */ 
-                                    }
-                                    else {
-                                        if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
-                                            map.getCell(i, j)->setFillColor(Color(192, 192, 192));
-                                            playerTurn = false;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            else {                  // Computer move
-
-            }
-        }
+        if(isPlacemented == false)
+            shipPlacementStage(event, menu, currentState);
+        else 
+            playingGameStage(event);
     }
 }
