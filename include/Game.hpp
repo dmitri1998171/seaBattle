@@ -45,7 +45,7 @@ class Game {
         void playingGameStage(Event* event);
         void update(Event* event, Menu* menu, State* currentState);
 
-        void computersPlacement();
+        void computersPlacement(Ship* ship, bool isCompShip);
 };
 
 #endif

@@ -117,11 +117,8 @@ void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
             }
 
             if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
-                    do {
-                        ship[i].autoPlacement(&map, false);
-                    } while(!ship[i].placementRulesCheck(&map, ship, i));
-                }
+                computersPlacement(ship, false);
+                computersPlacement(compShip, true);
 
                 placementCheck = true;
             }
@@ -184,11 +181,11 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
 }
 
 
-void Game::computersPlacement() {
+void Game::computersPlacement(Ship* _ship, bool isCompShip) {
     for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
         do {
-            compShip[i].autoPlacement(&map, true);
-        } while(!compShip[i].placementRulesCheck(&map, compShip, i));
+            _ship[i].autoPlacement(&map, isCompShip);
+        } while(!_ship[i].placementRulesCheck(&map, _ship, i));
     }
 }
 

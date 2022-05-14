@@ -137,7 +137,7 @@ int main() {
                     game.createMap(&font);
                     game.createShips(game.getAllShips(), shipsTexture);
                     game.createShips(game.getAllComputerShips(), shipsTexture);
-                    game.computersPlacement();
+                    game.computersPlacement(game.getAllComputerShips(), true);
                     isCreated = true;
                 }
 

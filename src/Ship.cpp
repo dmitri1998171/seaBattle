@@ -94,14 +94,14 @@ void Ship::autoPlacement(Map* map, bool isCompShip) {
     if(!isCompShip) 
         x = 3 + rand() % 10;
     else 
-        x = 17 + rand() % 10;
+        x = 17 + rand() % 7;
         
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
     sprite.move(16, 16);
 
-    if(0 + rand() % 2) 
-        sprite.setRotation(sprite.getRotation() - 90);
+    // if(0 + rand() % 2) 
+    //     sprite.setRotation(sprite.getRotation() - 90);
 }
 
 
