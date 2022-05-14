@@ -28,44 +28,56 @@ void Game::drawMap() {
 }
 
 
-void Game::createShips(Texture shipsTexture[]) {
+Ship* Game::getAllShips() {
+    return ship;
+}
+
+Ship* Game::getAllComputerShips() {
+    return compShip;
+}
+
+
+void Game::createShips(Ship* ship, Texture shipsTexture[]) {
     int size = 1;
-    float denominator = 2;
 
     for (int i = 0; i < 10; i++) {
         if (i < 4) {
             size = 1;
-            denominator = 2;
-            ship[i].setTexture(&shipsTexture[0]);
             ship[i].getShip()->setPosition(map.getCell(30 + i * 2, 3)->getPosition());
         }
         else if (i < 7) {
             size = 2;
-            denominator = 4;
-            ship[i].setTexture(&shipsTexture[1]);
             ship[i].getShip()->setPosition(map.getCell(17 + i * 3, 5)->getPosition());
         }
         else if (i < 9) {
             size = 3;
-            denominator = 2;
-            ship[i].setTexture(&shipsTexture[2]);
-            ship[i].getShip()->setPosition(map.getCell(3 + i * 4, 7)->getPosition());
+            ship[i].getShip()->setPosition(map.getCell(2 + i * 4, 7)->getPosition());
         }
         else {
             size = 4;
-            denominator = 8;
-            ship[i].setTexture(&shipsTexture[3]);
             ship[i].getShip()->setPosition(map.getCell(33, 9)->getPosition());
         }
         
-        ship[i].createShip(size, denominator);
+        ship[i].createShip(shipsTexture, size);
     }
-    
 }
 
 void Game::drawShips() {
     for (int i = 0; i < 10; i++)
         window->draw(*ship[i].getShip());
+}
+
+void Game::drawComputerShips() {
+    for (int i = 0; i < 10; i++) {
+
+
+
+                            compShip[i].getShip()->setColor(Color::Magenta);
+
+
+
+        window->draw(*compShip[i].getShip());
+    }
 }
 
 
@@ -107,12 +119,11 @@ void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
             if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                 for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
                     do {
-                        ship[i].autoPlacement(&map);
+                        ship[i].autoPlacement(&map, false);
                     } while(!ship[i].placementRulesCheck(&map, ship, i));
                 }
 
                 placementCheck = true;
-                cout << endl;
             }
 
             else {
@@ -165,9 +176,19 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
         if (event->type == Event::Closed)
             window->close();
 
-        if(isPlacemented == false)
+        if(isPlacemented == false) 
             shipPlacementStage(event, menu, currentState);
         else 
             playingGameStage(event);
     }
 }
+
+
+void Game::computersPlacement() {
+    for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
+        do {
+            compShip[i].autoPlacement(&map, true);
+        } while(!compShip[i].placementRulesCheck(&map, compShip, i));
+    }
+}
+

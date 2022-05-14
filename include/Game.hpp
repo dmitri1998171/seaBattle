@@ -16,7 +16,8 @@ class Game {
     private:
         IDrawUI ui;
         Map map;
-        Ship ship[10];
+        Ship ship[10];          // Player's ships
+        Ship compShip[10];      // computer's ships
 
         RenderWindow* window;
         Sprite playButton, autoPlacementButton;
@@ -31,14 +32,20 @@ class Game {
         void createMap(Font* font);
         void drawMap();
 
-        void createShips(Texture shipsTexture[]);
+        Ship* getAllShips();
+        Ship* getAllComputerShips();
+
+        void createShips(Ship* ship, Texture shipsTexture[]);
         void drawShips();
+        void drawComputerShips();
         
         void drawOther();
         
         void shipPlacementStage(Event* event, Menu* menu, State* currentState);
         void playingGameStage(Event* event);
         void update(Event* event, Menu* menu, State* currentState);
+
+        void computersPlacement();
 };
 
 #endif

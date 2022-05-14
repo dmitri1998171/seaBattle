@@ -19,13 +19,13 @@ class Ship {
     public:
         Ship();
         void setTexture(Texture* _texture);
-        void createShip(int size, float denominator);
+        void createShip(Texture shipsTexture[], int size);
         Sprite* getShip();
         void update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i mousePos, bool* placementCheck);
         void setPlaceState(bool state);
         bool isPlaced();
         bool allShipsPlaced(Ship* ship);
-        void autoPlacement(Map* map);
+        void autoPlacement(Map* map, bool isCompShip);
         bool placementRulesCheck(Map* map, Ship* ship, int chooseIndex);
 };
 

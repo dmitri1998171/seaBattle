@@ -36,11 +36,12 @@ void Ship::setTexture(Texture* _texture) {
     sprite.setTexture(texture);
 }
 
-void Ship::createShip(int size, float denominator) {
+void Ship::createShip(Texture shipsTexture[], int size) {
     shipSize = size;
 
+    setTexture(&shipsTexture[size - 1]);
     sprite.setTexture(texture);
-    sprite.setOrigin(sprite.getLocalBounds().width / denominator, sprite.getLocalBounds().height / 2);
+    sprite.setOrigin(sprite.getLocalBounds().width / (size * 2), sprite.getLocalBounds().height / 2);
     sprite.setScale(0.63, 0.63);
     sprite.move(16, 16);     // Eccentricity compensation (setOrigin)
 }
@@ -86,10 +87,15 @@ bool Ship::allShipsPlaced(Ship* ship) {
     return true;
 }
 
-void Ship::autoPlacement(Map* map) {
-    int x = 3 + rand() % 10;
+void Ship::autoPlacement(Map* map, bool isCompShip) {
+    int x;
     int y = 3 + rand() % 10;
 
+    if(!isCompShip) 
+        x = 3 + rand() % 10;
+    else 
+        x = 17 + rand() % 10;
+        
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
     sprite.move(16, 16);

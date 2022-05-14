@@ -135,7 +135,9 @@ int main() {
             case PLAY:
                 if(!isCreated) {
                     game.createMap(&font);
-                    game.createShips(shipsTexture);
+                    game.createShips(game.getAllShips(), shipsTexture);
+                    game.createShips(game.getAllComputerShips(), shipsTexture);
+                    game.computersPlacement();
                     isCreated = true;
                 }
 
@@ -144,6 +146,7 @@ int main() {
                 // Draw all
                 game.drawMap();
                 game.drawShips();
+                game.drawComputerShips();
                 game.drawOther();
                 break;
             
