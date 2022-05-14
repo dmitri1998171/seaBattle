@@ -100,29 +100,22 @@ void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
             Vector2i mousePos = Mouse::getPosition(*window);
 
             if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                cout << "!" << endl;
-                
                 if(placementCheck) 
                     isPlacemented = true;
             }
 
             if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                cout << "!!" << endl;
-
-                for (int i = 10; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
+                for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
                     do {
-                        cout << i << ") ";
                         ship[i].autoPlacement(&map);
                     } while(!ship[i].placementRulesCheck(&map, ship, i));
                 }
 
-                // placementCheck = true;
+                placementCheck = true;
                 cout << endl;
             }
 
             else {
-                cout << "!!!" << endl;
-
                 for(int i = 0; i < GRID_STEP; i++) {
                     for(int j = 0; j < GRID_STEP; j++) {
                         if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {

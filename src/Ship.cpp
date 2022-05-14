@@ -90,14 +90,12 @@ void Ship::autoPlacement(Map* map) {
     int x = 3 + rand() % 10;
     int y = 3 + rand() % 10;
 
-    cout << "X: " << x - 2 << " Y: " << y - 2 << endl;
-
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
     sprite.move(16, 16);
 
-    // if(0 + rand() % 2) 
-    //     sprite.setRotation(sprite.getRotation() - 90);
+    if(0 + rand() % 2) 
+        sprite.setRotation(sprite.getRotation() - 90);
 }
 
 
