@@ -137,13 +137,16 @@ void Game::playingGameStage(Event* event) {
                 for(int i = 0; i < GRID_STEP; i++) {
                     for(int j = 0; j < GRID_STEP; j++) {
                         if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
-                            if((i > 16 && i < 27) && (j > 2 && j < 14)) {    // If mouse click was inside the right BorderBox
+                            if((i > 16 && i < 27) && (j > 2 && j < 13)) {    // If mouse click was inside the right BorderBox
                                 for (int k = 0; k < 10; k++) {
                                     if(compShip[k].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
                                         if(!compShip[k].isKilled()) {
                                             cout << "Ship was clicked!" << endl;
                                             
                                             compShip[k].getShip()->setColor(Color::Red);
+                                            // compShip[k].getShip()->setScale(0.63, 0.63);
+
+                                            compShip[k].killTheShip(&map);
                                         }
                                     }
                                     else {
@@ -186,6 +189,9 @@ void Game::computersPlacement(Ship* _ship, bool isCompShip) {
         do {
             _ship[i].autoPlacement(&map, isCompShip);
         } while(!_ship[i].placementRulesCheck(&map, _ship, i));
+
+        // cout << i << ") " << "x: " << _ship[i].getCoord().x << "\ty: " << _ship[i].getCoord().y << endl;
     }
+    cout << endl;
 }
 

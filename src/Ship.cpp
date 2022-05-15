@@ -32,12 +32,15 @@ bool Ship::checkAnotherShipsCollision(Ship *ship, int chooseIndex) {
     return true;
 }
 
+
 void Ship::setTexture(Texture* _texture) {
     this->texture = *_texture;
     sprite.setTexture(texture);
 }
 
 void Ship::createShip(Texture shipsTexture[], int size) {
+    shipSize = size;
+    
     setTexture(&shipsTexture[size - 1]);
     sprite.setTexture(texture);
     sprite.setOrigin(sprite.getLocalBounds().width / (size * 2), sprite.getLocalBounds().height / 2);
@@ -55,6 +58,8 @@ void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i
             _isPlaced = true;
             sprite.setPosition(map->getCell(i, j)->getPosition());
             sprite.move(16, 16);   // Eccentricity compensation (setOrigin)
+        
+            setCoord(Vector2i(i, j));
 
             *placementCheck = placementRulesCheck(map, ship, *chooseIndex);
             *placementCheck = allShipsPlaced(ship);
@@ -68,6 +73,15 @@ void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i
                 *chooseIndex = i;
                 break;
             }
+}
+
+
+void Ship::setCoord(Vector2i coord) {
+    this->coord = coord;
+}
+
+Vector2i Ship::getCoord() {
+    return coord;
 }
 
 
@@ -96,6 +110,37 @@ bool Ship::isKilled() {
     return _isKilled;
 }
 
+void Ship::killTheShip(Map* map) {
+    int x = getCoord().x;
+    int y = getCoord().y;
+    
+    if(x > 17) {
+        map->getCell(x - 1, y)->setFillColor(Color(192, 192, 192));
+
+        if(y < 12)
+            map->getCell(x - 1, y + 1)->setFillColor(Color(192, 192, 192));
+
+        if(y > 3) 
+            map->getCell(x - 1, y - 1)->setFillColor(Color(192, 192, 192));
+    }
+
+    if(x < 26) {
+        map->getCell(x + 1, y)->setFillColor(Color(192, 192, 192));
+
+        if(y > 3)
+            map->getCell(x + 1, y - 1)->setFillColor(Color(192, 192, 192));
+        
+        if(y < 12)        
+            map->getCell(x + 1, y + 1)->setFillColor(Color(192, 192, 192));
+    }
+
+    if(y > 3) 
+        map->getCell(x, y - 1)->setFillColor(Color(192, 192, 192));
+    
+    if(y < 12)
+        map->getCell(x, y + 1)->setFillColor(Color(192, 192, 192));
+}
+
 
 void Ship::autoPlacement(Map* map, bool isCompShip) {
     int x;
@@ -103,12 +148,16 @@ void Ship::autoPlacement(Map* map, bool isCompShip) {
 
     if(!isCompShip) 
         x = 3 + rand() % 10;
-    else 
+    else {
+        // sprite.setScale(0, 0);
         x = 17 + rand() % 7;
+    }
         
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
     sprite.move(16, 16);
+
+    setCoord(Vector2i(x, y));
 
     // if(0 + rand() % 2) 
     //     sprite.setRotation(sprite.getRotation() - 90);
