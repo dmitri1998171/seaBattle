@@ -40,7 +40,7 @@ void Ship::setTexture(Texture* _texture) {
 
 void Ship::createShip(Texture shipsTexture[], int size) {
     shipSize = size;
-    
+
     setTexture(&shipsTexture[size - 1]);
     sprite.setTexture(texture);
     sprite.setOrigin(sprite.getLocalBounds().width / (size * 2), sprite.getLocalBounds().height / 2);
@@ -110,35 +110,8 @@ bool Ship::isKilled() {
     return _isKilled;
 }
 
-void Ship::killTheShip(Map* map) {
-    int x = getCoord().x;
-    int y = getCoord().y;
-    
-    if(x > 17) {
-        map->getCell(x - 1, y)->setFillColor(Color(192, 192, 192));
-
-        if(y < 12)
-            map->getCell(x - 1, y + 1)->setFillColor(Color(192, 192, 192));
-
-        if(y > 3) 
-            map->getCell(x - 1, y - 1)->setFillColor(Color(192, 192, 192));
-    }
-
-    if(x < 26) {
-        map->getCell(x + 1, y)->setFillColor(Color(192, 192, 192));
-
-        if(y > 3)
-            map->getCell(x + 1, y - 1)->setFillColor(Color(192, 192, 192));
-        
-        if(y < 12)        
-            map->getCell(x + 1, y + 1)->setFillColor(Color(192, 192, 192));
-    }
-
-    if(y > 3) 
-        map->getCell(x, y - 1)->setFillColor(Color(192, 192, 192));
-    
-    if(y < 12)
-        map->getCell(x, y + 1)->setFillColor(Color(192, 192, 192));
+int Ship::getShipSize() {
+    return shipSize;
 }
 
 

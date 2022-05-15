@@ -34,7 +34,7 @@ class Ship {
 
         void setKillState(bool state);
         bool isKilled();
-        void killTheShip(Map* map);
+        int getShipSize();
 
         void autoPlacement(Map* map, bool isCompShip);
         bool placementRulesCheck(Map* map, Ship* ship, int chooseIndex);

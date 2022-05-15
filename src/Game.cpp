@@ -143,10 +143,9 @@ void Game::playingGameStage(Event* event) {
                                         if(!compShip[k].isKilled()) {
                                             cout << "Ship was clicked!" << endl;
                                             
-                                            compShip[k].getShip()->setColor(Color::Red);
                                             // compShip[k].getShip()->setScale(0.63, 0.63);
 
-                                            compShip[k].killTheShip(&map);
+                                            killTheShip(&map, &compShip[k]);
                                         }
                                     }
                                     else {
@@ -178,8 +177,10 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
 
         if(isPlacemented == false) 
             shipPlacementStage(event, menu, currentState);
-        else 
+        else {
             playingGameStage(event);
+            gameOverCheck();
+        }
     }
 }
 
@@ -195,3 +196,41 @@ void Game::computersPlacement(Ship* _ship, bool isCompShip) {
     cout << endl;
 }
 
+void Game::killTheShip(Map* map, Ship* _ship) {
+    _ship->getShip()->setColor(Color::Red);
+
+    int x = _ship->getCoord().x;
+    int y = _ship->getCoord().y;
+    
+    if(x > 17) {
+        map->getCell(x - 1, y)->setFillColor(Color(192, 192, 192));
+
+        if(y < 12)
+            map->getCell(x - 1, y + 1)->setFillColor(Color(192, 192, 192));
+
+        if(y > 3) 
+            map->getCell(x - 1, y - 1)->setFillColor(Color(192, 192, 192));
+    }
+
+    for (int i = 1; i <= _ship->getShipSize(); i++) {
+        if(x < 26) {
+            map->getCell(x + i, y)->setFillColor(Color(192, 192, 192));
+
+            if(y > 3)
+                map->getCell(x + i, y - 1)->setFillColor(Color(192, 192, 192));
+            
+            if(y < 12)        
+                map->getCell(x + i, y + 1)->setFillColor(Color(192, 192, 192));
+        }
+    }
+
+    if(y > 3) 
+        map->getCell(x, y - 1)->setFillColor(Color(192, 192, 192));
+    
+    if(y < 12)
+        map->getCell(x, y + 1)->setFillColor(Color(192, 192, 192));
+}
+
+void Game::gameOverCheck() {
+
+}

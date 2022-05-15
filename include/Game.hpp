@@ -46,6 +46,8 @@ class Game {
         void update(Event* event, Menu* menu, State* currentState);
 
         void computersPlacement(Ship* ship, bool isCompShip);
+        void killTheShip(Map* map, Ship* _ship);
+        void gameOverCheck();
 };
 
 #endif
