@@ -3,6 +3,7 @@
 
 Ship::Ship() {
     _isPlaced = false;
+    _isKilled = false;
     sprite.setColor(Color(255, 255, 255, 100));
 }
 
@@ -37,8 +38,6 @@ void Ship::setTexture(Texture* _texture) {
 }
 
 void Ship::createShip(Texture shipsTexture[], int size) {
-    shipSize = size;
-
     setTexture(&shipsTexture[size - 1]);
     sprite.setTexture(texture);
     sprite.setOrigin(sprite.getLocalBounds().width / (size * 2), sprite.getLocalBounds().height / 2);
@@ -71,6 +70,7 @@ void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i
             }
 }
 
+
 void Ship::setPlaceState(bool state) {
     _isPlaced = state;
 }
@@ -86,6 +86,16 @@ bool Ship::allShipsPlaced(Ship* ship) {
     
     return true;
 }
+
+
+void Ship::setKillState(bool state) {
+    _isKilled = state;
+}
+
+bool Ship::isKilled() {
+    return _isKilled;
+}
+
 
 void Ship::autoPlacement(Map* map, bool isCompShip) {
     int x;

@@ -1,5 +1,5 @@
-#include "Game.hpp"
-#include "MyLogger.hpp"
+#include "../include/Game.hpp"
+#include "../include/MyLogger.hpp"
 
 #define WIDTH 1216
 #define HEIGHT 512

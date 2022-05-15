@@ -2,7 +2,7 @@
 #define GAME_HPP
 
 #include <iostream>
-#include <SFML/Graphics.hpp>
+#include "SFML/Graphics.hpp"
 #include "Menu/Menu.hpp"
 #include "Map.hpp"
 #include "Ship.hpp"

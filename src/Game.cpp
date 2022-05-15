@@ -68,16 +68,8 @@ void Game::drawShips() {
 }
 
 void Game::drawComputerShips() {
-    for (int i = 0; i < 10; i++) {
-
-
-
-                            compShip[i].getShip()->setColor(Color::Magenta);
-
-
-
+    for (int i = 0; i < 10; i++) 
         window->draw(*compShip[i].getShip());
-    }
 }
 
 
@@ -145,15 +137,23 @@ void Game::playingGameStage(Event* event) {
                 for(int i = 0; i < GRID_STEP; i++) {
                     for(int j = 0; j < GRID_STEP; j++) {
                         if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
-                            if(ship[i].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                            /*
-                                kill the ship logic
-                            */ 
-                            }
-                            else {
-                                if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
-                                    map.getCell(i, j)->setFillColor(Color(192, 192, 192));
-                                    playerTurn = false;
+                            if((i > 16 && i < 27) && (j > 2 && j < 14)) {    // If mouse click was inside the right BorderBox
+                                for (int k = 0; k < 10; k++) {
+                                    if(compShip[k].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                        if(!compShip[k].isKilled()) {
+                                            cout << "Ship was clicked!" << endl;
+                                            
+                                            compShip[k].getShip()->setColor(Color::Red);
+                                        }
+                                    }
+                                    else {
+                                        if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
+                                            cout << "CLICK!" << endl;
+
+                                            map.getCell(i, j)->setFillColor(Color(192, 192, 192));
+                                            playerTurn = false;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -164,7 +164,7 @@ void Game::playingGameStage(Event* event) {
     }
     
     else {                  // Computer move
-
+        playerTurn = true;
     }
 }
 
