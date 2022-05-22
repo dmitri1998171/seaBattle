@@ -10,6 +10,8 @@
 using namespace std;
 using namespace sf;
 
+#define GREY_COLOR Color(192, 192, 192)
+
 enum State {MENU, PLAY, WIN, LOSE};
 
 class Game {
@@ -20,6 +22,7 @@ class Game {
         Ship compShip[10];      // computer's ships
 
         RenderWindow* window;
+        Texture hited_cell;
         Sprite playButton, autoPlacementButton;
         int chooseIndex;     // It select ship for placement
         bool isPlacemented;  // It turn 'setting' and 'playing' substates into the PLAY game state 
@@ -27,7 +30,7 @@ class Game {
         bool playerTurn;     // It turn Player move and Computer move 
         
     public:
-        Game(RenderWindow* window);
+        Game(RenderWindow* window, Texture* texture);
         
         void createMap(Font* font);
         void drawMap();
@@ -44,6 +47,8 @@ class Game {
         void shipPlacementStage(Event* event, Menu* menu, State* currentState);
         void playingGameStage(Event* event);
         void update(Event* event, Menu* menu, State* currentState);
+        void playingUpdate(int i, int j, Vector2i mousePos);
+
 
         void computersPlacement(Ship* ship, bool isCompShip);
         void killTheShip(Map* map, Ship* _ship);

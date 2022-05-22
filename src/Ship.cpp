@@ -4,6 +4,7 @@
 Ship::Ship() {
     _isPlaced = false;
     _isKilled = false;
+    hitTheShip = 0;
     sprite.setColor(Color(255, 255, 255, 100));
 }
 
@@ -33,16 +34,12 @@ bool Ship::checkAnotherShipsCollision(Ship *ship, int chooseIndex) {
 }
 
 
-void Ship::setTexture(Texture* _texture) {
-    this->texture = *_texture;
-    sprite.setTexture(texture);
-}
-
 void Ship::createShip(Texture shipsTexture[], int size) {
     shipSize = size;
 
-    setTexture(&shipsTexture[size - 1]);
-    sprite.setTexture(texture);
+    this->texture = shipsTexture[size - 1];
+    sprite.setTexture(shipsTexture[size - 1]);
+
     sprite.setOrigin(sprite.getLocalBounds().width / (size * 2), sprite.getLocalBounds().height / 2);
     sprite.setScale(0.63, 0.63);
     sprite.move(16, 16);     // Eccentricity compensation (setOrigin)
@@ -51,6 +48,7 @@ void Ship::createShip(Texture shipsTexture[], int size) {
 Sprite* Ship::getShip() {
     return &sprite;
 }
+
 
 void Ship::update(Map* map, int i, int j, Ship* ship, int *chooseIndex, Vector2i mousePos, bool* placementCheck) {     
     if(*chooseIndex > -1) {    // If ship already chosen
@@ -115,16 +113,21 @@ int Ship::getShipSize() {
 }
 
 
+void Ship::addHit() {
+    hitTheShip++;
+}
+
+int Ship::hitCount() {
+    return hitTheShip;
+}
+
+
 void Ship::autoPlacement(Map* map, bool isCompShip) {
-    int x;
+    int x = 3 + rand() % 10;
     int y = 3 + rand() % 10;
 
-    if(!isCompShip) 
-        x = 3 + rand() % 10;
-    else {
-        // sprite.setScale(0, 0);
+    if(isCompShip) 
         x = 17 + rand() % 7;
-    }
         
     sprite.setColor(Color(255, 255, 255, 255));
     sprite.setPosition(map->getCell(x, y)->getPosition());
@@ -146,3 +149,16 @@ bool Ship::placementRulesCheck(Map* map, Ship* ship, int chooseIndex) {
     sprite.setColor(Color::Red);
     return false;
 }
+
+
+bool Ship::checkToClick(int i, int j, Vector2i mousePos) {
+    if(getCoord().y == j) {
+        for (int k = 0; k < getShipSize(); k++) {
+            if(i == getCoord().x + k)
+                return true;
+        }
+    } 
+
+    return false;
+}
+

@@ -23,16 +23,20 @@ int main() {
     
     bool isCreated = false;
     Font font;
+    Texture hited_cell;
     Texture shipsTexture[4];
     State currentState = MENU;
 
-    Game game(&window);
 
 /* Load resources */
     loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
     
     for (int i = 0; i < 4; i++)
         shipsTexture[i] = *loadTexture("./media/img/ship_" + to_string(i + 1) + ".jpg");
+
+    hited_cell = *loadTexture("./media/img/hited_cell.jpg");
+
+    Game game(&window, &hited_cell);
 
 /* Create menu */
     Menu menu(&window, &font);

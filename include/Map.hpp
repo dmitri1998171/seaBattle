@@ -29,6 +29,8 @@ class Map {
         void getWindow(RenderWindow* window);
 
         void setFont(Font* font);
+        void setTexture(int i, int j, Texture* texture);
+        
         void createBorderBox(RectangleShape BorderBox[], int offset);
         void createGrid();
         void addBorders();

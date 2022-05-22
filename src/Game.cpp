@@ -1,10 +1,11 @@
 #include "Game.hpp"
 
-Game::Game(RenderWindow* window) {
+Game::Game(RenderWindow* window, Texture* texture) {
     this->window = window;
     chooseIndex = -1;
     isPlacemented = false;
     placementCheck = false;
+    hited_cell = *texture;
 
     map.getWindow(this->window);
 
@@ -68,8 +69,10 @@ void Game::drawShips() {
 }
 
 void Game::drawComputerShips() {
-    for (int i = 0; i < 10; i++) 
-        window->draw(*compShip[i].getShip());
+    for (int i = 0; i < 10; i++) {
+        if(compShip[i].hitCount() == compShip[i].getShipSize())
+            window->draw(*compShip[i].getShip());
+    }
 }
 
 
@@ -137,27 +140,7 @@ void Game::playingGameStage(Event* event) {
                 for(int i = 0; i < GRID_STEP; i++) {
                     for(int j = 0; j < GRID_STEP; j++) {
                         if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
-                            if((i > 16 && i < 27) && (j > 2 && j < 13)) {    // If mouse click was inside the right BorderBox
-                                for (int k = 0; k < 10; k++) {
-                                    if(compShip[k].getShip()->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                                        if(!compShip[k].isKilled()) {
-                                            cout << "Ship was clicked!" << endl;
-                                            
-                                            // compShip[k].getShip()->setScale(0.63, 0.63);
-
-                                            killTheShip(&map, &compShip[k]);
-                                        }
-                                    }
-                                    else {
-                                        if(map.getCell(i, j)->getFillColor() != Color(192, 192, 192)) {
-                                            cout << "CLICK!" << endl;
-
-                                            map.getCell(i, j)->setFillColor(Color(192, 192, 192));
-                                            playerTurn = false;
-                                        }
-                                    }
-                                }
-                            }
+                            playingUpdate(i, j, mousePos);
                         }
                     }
                 }
@@ -185,13 +168,41 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
 }
 
 
+void Game::playingUpdate(int i, int j, Vector2i mousePos) {
+    if((i > 16 && i < 27) && (j > 2 && j < 13)) {    // If mouse click was inside the right BorderBox
+        for (int k = 0; k < 10; k++) {
+            if(compShip[k].checkToClick(i, j, mousePos)) {  // If click on the computer's ship
+                if(!compShip[k].isKilled()) {
+                    cout << "Ship was clicked!" << endl;
+                    
+                    compShip[k].addHit();
+
+                    if((compShip[k].hitCount() > 0) && (compShip[k].getShipSize() != 1)) 
+                        map.setTexture(i, j, &hited_cell);          // Change the texture
+
+                    if(compShip[k].hitCount() == compShip[k].getShipSize())
+                        killTheShip(&map, &compShip[k]);
+                }
+            }
+            else {
+                if(map.getCell(i, j)->getFillColor() != GREY_COLOR) {
+                    cout << "CLICK!" << endl;
+
+                    map.getCell(i, j)->setFillColor(GREY_COLOR);
+                    playerTurn = false;
+                }
+            }
+        }
+    }
+}
+
 void Game::computersPlacement(Ship* _ship, bool isCompShip) {
     for (int i = 9; i >= 0; i--) {     // It's goes from end to start, because big ships easier placement on clear field 
         do {
             _ship[i].autoPlacement(&map, isCompShip);
         } while(!_ship[i].placementRulesCheck(&map, _ship, i));
 
-        // cout << i << ") " << "x: " << _ship[i].getCoord().x << "\ty: " << _ship[i].getCoord().y << endl;
+        cout << i << ") " << "x: " << _ship[i].getCoord().x << "\ty: " << _ship[i].getCoord().y << endl;
     }
     cout << endl;
 }
@@ -203,32 +214,32 @@ void Game::killTheShip(Map* map, Ship* _ship) {
     int y = _ship->getCoord().y;
     
     if(x > 17) {
-        map->getCell(x - 1, y)->setFillColor(Color(192, 192, 192));
+        map->getCell(x - 1, y)->setFillColor(GREY_COLOR);
 
         if(y < 12)
-            map->getCell(x - 1, y + 1)->setFillColor(Color(192, 192, 192));
+            map->getCell(x - 1, y + 1)->setFillColor(GREY_COLOR);
 
         if(y > 3) 
-            map->getCell(x - 1, y - 1)->setFillColor(Color(192, 192, 192));
+            map->getCell(x - 1, y - 1)->setFillColor(GREY_COLOR);
     }
 
     for (int i = 1; i <= _ship->getShipSize(); i++) {
         if(x < 26) {
-            map->getCell(x + i, y)->setFillColor(Color(192, 192, 192));
+            map->getCell(x + i, y)->setFillColor(GREY_COLOR);
 
             if(y > 3)
-                map->getCell(x + i, y - 1)->setFillColor(Color(192, 192, 192));
+                map->getCell(x + i, y - 1)->setFillColor(GREY_COLOR);
             
             if(y < 12)        
-                map->getCell(x + i, y + 1)->setFillColor(Color(192, 192, 192));
+                map->getCell(x + i, y + 1)->setFillColor(GREY_COLOR);
         }
     }
 
     if(y > 3) 
-        map->getCell(x, y - 1)->setFillColor(Color(192, 192, 192));
+        map->getCell(x, y - 1)->setFillColor(GREY_COLOR);
     
     if(y < 12)
-        map->getCell(x, y + 1)->setFillColor(Color(192, 192, 192));
+        map->getCell(x, y + 1)->setFillColor(GREY_COLOR);
 }
 
 void Game::gameOverCheck() {

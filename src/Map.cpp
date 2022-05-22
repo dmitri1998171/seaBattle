@@ -9,6 +9,11 @@ void Map::setFont(Font* font) {
     this->font = *font;
 }
 
+void Map::setTexture(int i, int j, Texture* texture) {
+    cell[i][j].setTexture(texture);
+}
+
+
 void Map::createBorderBox(RectangleShape BorderBox[], int offset) {
     BorderBox[0].setPosition(RECT_SIZE * 3, (RECT_SIZE * 3) - offset);      // top
     BorderBox[1].setPosition((RECT_SIZE * 13) + offset, RECT_SIZE * 3);     // right
