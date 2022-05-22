@@ -6,6 +6,8 @@
 
 using namespace sf;
 
+void selectRandCell(Vector2i* randCoord, bool isCompShip);
+
 class Ship {
     private:
         bool _isPlaced;
@@ -37,6 +39,7 @@ class Ship {
 
         void setKillState(bool state);
         bool isKilled();
+        
         int getShipSize();
 
         void addHit();
@@ -45,7 +48,7 @@ class Ship {
         void autoPlacement(Map* map, bool isCompShip);
         bool placementRulesCheck(Map* map, Ship* ship, int chooseIndex);
 
-        bool checkToClick(int i, int j, Vector2i mousePos);
+        bool checkToClick(int i, int j);
 };
 
 #endif

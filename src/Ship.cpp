@@ -1,5 +1,12 @@
-
 #include "Ship.hpp"
+
+void selectRandCell(Vector2i* randCoord, bool isCompShip) {
+    randCoord->x = 3 + rand() % 9;
+    randCoord->y = 3 + rand() % 9;
+
+    if(isCompShip) 
+        randCoord->x = 17 + rand() % 7;
+}
 
 Ship::Ship() {
     _isPlaced = false;
@@ -123,17 +130,14 @@ int Ship::hitCount() {
 
 
 void Ship::autoPlacement(Map* map, bool isCompShip) {
-    int x = 3 + rand() % 10;
-    int y = 3 + rand() % 10;
-
-    if(isCompShip) 
-        x = 17 + rand() % 7;
+    Vector2i randCoord;
+    selectRandCell(&randCoord, isCompShip);
         
     sprite.setColor(Color(255, 255, 255, 255));
-    sprite.setPosition(map->getCell(x, y)->getPosition());
+    sprite.setPosition(map->getCell(randCoord.x, randCoord.y)->getPosition());
     sprite.move(16, 16);
 
-    setCoord(Vector2i(x, y));
+    setCoord(Vector2i(randCoord.x, randCoord.y));
 
     // if(0 + rand() % 2) 
     //     sprite.setRotation(sprite.getRotation() - 90);
@@ -150,8 +154,7 @@ bool Ship::placementRulesCheck(Map* map, Ship* ship, int chooseIndex) {
     return false;
 }
 
-
-bool Ship::checkToClick(int i, int j, Vector2i mousePos) {
+bool Ship::checkToClick(int i, int j) {
     if(getCoord().y == j) {
         for (int k = 0; k < getShipSize(); k++) {
             if(i == getCoord().x + k)

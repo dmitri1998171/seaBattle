@@ -6,6 +6,7 @@ Game::Game(RenderWindow* window, Texture* texture) {
     isPlacemented = false;
     placementCheck = false;
     hited_cell = *texture;
+    stepDelay = 1;
 
     map.getWindow(this->window);
 
@@ -70,7 +71,8 @@ void Game::drawShips() {
 
 void Game::drawComputerShips() {
     for (int i = 0; i < 10; i++) {
-        if(compShip[i].hitCount() == compShip[i].getShipSize())
+        // if(compShip[i].hitCount() == compShip[i].getShipSize())
+        if(compShip[i].isKilled())
             window->draw(*compShip[i].getShip());
     }
 }
@@ -85,44 +87,49 @@ void Game::drawOther() {
 
 
 void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
-    if(placementCheck) 
-        playButton.setColor(Color(255, 255, 255, 255));
+    while (window->pollEvent(*event)) {
+        if (event->type == Event::Closed)
+            window->close();
 
-    if(event->type == Event::KeyReleased) {
-        if(event->key.code == Keyboard::R) {
-            if(chooseIndex > -1) { // If ship was chosen
-                ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
-                chooseIndex = -1;
+        if(placementCheck) 
+            playButton.setColor(Color(255, 255, 255, 255));
+
+        if(event->type == Event::KeyReleased) {
+            if(event->key.code == Keyboard::R) {
+                if(chooseIndex > -1) { // If ship was chosen
+                    ship[chooseIndex].getShip()->setRotation(ship[chooseIndex].getShip()->getRotation() + 90);
+                    chooseIndex = -1;
+                }
+            }
+        
+            if(event->key.code == Keyboard::Escape) {
+                *currentState = MENU;
+                menu->setState(PAUSE);
             }
         }
-    
-        if(event->key.code == Keyboard::Escape) {
-            *currentState = MENU;
-            menu->setState(PAUSE);
-        }
-    }
 
-    if(event->type == Event::MouseButtonReleased) {
-        if(event->mouseButton.button == Mouse::Left) {
-            Vector2i mousePos = Mouse::getPosition(*window);
+        if(event->type == Event::MouseButtonReleased) {
+            if(event->mouseButton.button == Mouse::Left) {
+                Vector2i mousePos = Mouse::getPosition(*window);
 
-            if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                if(placementCheck) 
-                    isPlacemented = true;
-            }
+                if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    if(placementCheck) 
+                        isPlacemented = true;
+                }
 
-            if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                computersPlacement(ship, false);
-                computersPlacement(compShip, true);
+                if(autoPlacementButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                    computersPlacement(ship, false);
+                    computersPlacement(compShip, true);
 
-                placementCheck = true;
-            }
+                    placementCheck = true;
+                }
 
-            else {
-                for(int i = 0; i < GRID_STEP; i++) {
-                    for(int j = 0; j < GRID_STEP; j++) {
-                        if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                            ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
+                else {
+                    for(int i = 0; i < GRID_STEP; i++) {
+                        for(int j = 0; j < GRID_STEP; j++) {
+                            if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+                                ship[chooseIndex].update(&map, i, j, ship, &chooseIndex, mousePos, &placementCheck);
+                            }
                         }
                     }
                 }
@@ -132,38 +139,67 @@ void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
 }
 
 void Game::playingGameStage(Event* event) {
-    if(playerTurn) {        // Player move
-        if(event->type == Event::MouseButtonReleased) {
-            if(event->mouseButton.button == Mouse::Left) {
-                Vector2i mousePos = Mouse::getPosition(*window);
-                
-                for(int i = 0; i < GRID_STEP; i++) {
-                    for(int j = 0; j < GRID_STEP; j++) {
-                        if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
-                            playingUpdate(i, j, mousePos);
+    if(playerTurn) {        // Player action
+        while (window->pollEvent(*event)) {
+            if (event->type == Event::Closed)
+                window->close();
+
+            if(event->type == Event::MouseButtonReleased) {
+                if(event->mouseButton.button == Mouse::Left) {
+                    Vector2i mousePos = Mouse::getPosition(*window);
+                    
+                    for(int i = 0; i < GRID_STEP; i++) {
+                        for(int j = 0; j < GRID_STEP; j++) {
+                            if(map.getCell(i, j)->getGlobalBounds().contains(mousePos.x, mousePos.y)) {  
+                                playingUpdate(i, j, mousePos);
+                                playerTurn = false;
+                            }
                         }
                     }
                 }
-            }
+            }        
         }
     }
     
-    else {                  // Computer move
+    else {                  // Computer action
+        Vector2i coord;
+        selectRandCell(&coord, false);
+        
+        cout << "x: " << coord.x << " y: " << coord.y << endl;
+
+        sleep(stepDelay);
+
+        for (int k = 0; k < 10; k++) {
+            if(ship[k].checkToClick(coord.x, coord.y)) {  // If click on the player's ship
+                if(!ship[k].isKilled()) {
+                    ship[k].addHit();
+
+                    if((ship[k].hitCount() > 0) && (ship[k].getShipSize() != 1)) 
+                        map.getCell(coord.x, coord.y)->setFillColor(Color::Red);
+
+                    if(ship[k].hitCount() == ship[k].getShipSize())
+                        killTheShip(&map, &ship[k]);
+                }
+            }
+            else {
+                if(map.getCell(coord.x, coord.y)->getFillColor() != GREY_COLOR) {
+                    map.getCell(coord.x, coord.y)->setFillColor(GREY_COLOR);
+                    playerTurn = false;
+                }
+            }
+        }
+
         playerTurn = true;
     }
 }
 
 void Game::update(Event* event, Menu* menu, State* currentState) {
-    while (window->pollEvent(*event)) {
-        if (event->type == Event::Closed)
-            window->close();
+    if(isPlacemented == false) 
+        shipPlacementStage(event, menu, currentState);
 
-        if(isPlacemented == false) 
-            shipPlacementStage(event, menu, currentState);
-        else {
-            playingGameStage(event);
-            gameOverCheck();
-        }
+    else {
+        playingGameStage(event);
+        gameOverCheck();
     }
 }
 
@@ -171,7 +207,7 @@ void Game::update(Event* event, Menu* menu, State* currentState) {
 void Game::playingUpdate(int i, int j, Vector2i mousePos) {
     if((i > 16 && i < 27) && (j > 2 && j < 13)) {    // If mouse click was inside the right BorderBox
         for (int k = 0; k < 10; k++) {
-            if(compShip[k].checkToClick(i, j, mousePos)) {  // If click on the computer's ship
+            if(compShip[k].checkToClick(i, j)) {  // If click on the computer's ship
                 if(!compShip[k].isKilled()) {
                     cout << "Ship was clicked!" << endl;
                     
@@ -202,13 +238,14 @@ void Game::computersPlacement(Ship* _ship, bool isCompShip) {
             _ship[i].autoPlacement(&map, isCompShip);
         } while(!_ship[i].placementRulesCheck(&map, _ship, i));
 
-        cout << i << ") " << "x: " << _ship[i].getCoord().x << "\ty: " << _ship[i].getCoord().y << endl;
+        // cout << i << ") " << "x: " << _ship[i].getCoord().x << "\ty: " << _ship[i].getCoord().y << endl;
     }
-    cout << endl;
+    // cout << endl;
 }
 
 void Game::killTheShip(Map* map, Ship* _ship) {
     _ship->getShip()->setColor(Color::Red);
+    _ship->setKillState(true);
 
     int x = _ship->getCoord().x;
     int y = _ship->getCoord().y;
