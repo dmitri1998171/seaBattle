@@ -1,18 +1,29 @@
 #include "Game.hpp"
 
 Game::Game(RenderWindow* window, Texture* texture) {
+    currentState = LOSE;
     this->window = window;
     chooseIndex = -1;
     isPlacemented = false;
     placementCheck = false;
     hited_cell = *texture;
     stepDelay = 1;
+    killedShipsCount = 0;
+    killedCompShipsCount = 0;
 
     map.getWindow(this->window);
 
     playButton = *ui.createSprite("./media/img/play_button.png", Vector2f(WIDTH - 64, HEIGHT - 96));
     autoPlacementButton = *ui.createSprite("./media/img/auto_placement.png", Vector2f(WIDTH - 160, HEIGHT - 96));
     playButton.setColor(Color(255, 255, 255, 100));
+}
+
+State Game::getState() {
+    return currentState;
+}
+
+void Game::setState(State state) {
+    currentState = state;
 }
 
 
@@ -71,8 +82,7 @@ void Game::drawShips() {
 
 void Game::drawComputerShips() {
     for (int i = 0; i < 10; i++) {
-        // if(compShip[i].hitCount() == compShip[i].getShipSize())
-        if(compShip[i].isKilled())
+        // if(compShip[i].isKilled())
             window->draw(*compShip[i].getShip());
     }
 }
@@ -86,7 +96,7 @@ void Game::drawOther() {
 }
 
 
-void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
+void Game::shipPlacementStage(Event* event, Menu* menu) {
     while (window->pollEvent(*event)) {
         if (event->type == Event::Closed)
             window->close();
@@ -103,7 +113,7 @@ void Game::shipPlacementStage(Event* event, Menu* menu, State* currentState) {
             }
         
             if(event->key.code == Keyboard::Escape) {
-                *currentState = MENU;
+                currentState = MENU;
                 menu->setState(PAUSE);
             }
         }
@@ -177,8 +187,10 @@ void Game::playingGameStage(Event* event) {
                     if((ship[k].hitCount() > 0) && (ship[k].getShipSize() != 1)) 
                         map.getCell(coord.x, coord.y)->setFillColor(Color::Red);
 
-                    if(ship[k].hitCount() == ship[k].getShipSize())
+                    if(ship[k].hitCount() == ship[k].getShipSize()) {
                         killTheShip(&map, &ship[k]);
+                        killedShipsCount++;
+                    }
                 }
             }
             else {
@@ -193,9 +205,9 @@ void Game::playingGameStage(Event* event) {
     }
 }
 
-void Game::update(Event* event, Menu* menu, State* currentState) {
+void Game::update(Event* event, Menu* menu) {
     if(isPlacemented == false) 
-        shipPlacementStage(event, menu, currentState);
+        shipPlacementStage(event, menu);
 
     else {
         playingGameStage(event);
@@ -216,8 +228,10 @@ void Game::playingUpdate(int i, int j, Vector2i mousePos) {
                     if((compShip[k].hitCount() > 0) && (compShip[k].getShipSize() != 1)) 
                         map.setTexture(i, j, &hited_cell);          // Change the texture
 
-                    if(compShip[k].hitCount() == compShip[k].getShipSize())
+                    if(compShip[k].hitCount() == compShip[k].getShipSize()) {
                         killTheShip(&map, &compShip[k]);
+                        killedCompShipsCount++;
+                    }
                 }
             }
             else {
@@ -280,5 +294,9 @@ void Game::killTheShip(Map* map, Ship* _ship) {
 }
 
 void Game::gameOverCheck() {
+    if(killedCompShipsCount == 10)
+        currentState = WIN;
 
+    if(killedShipsCount == 10)
+        currentState = LOSE;
 }

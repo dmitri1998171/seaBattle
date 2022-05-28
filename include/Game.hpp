@@ -22,6 +22,7 @@ class Game {
         Ship ship[10];          // Player's ships
         Ship compShip[10];      // computer's ships
 
+        State currentState;
         RenderWindow* window;
         Texture hited_cell;
         Sprite playButton, autoPlacementButton;
@@ -29,11 +30,16 @@ class Game {
         bool placementCheck; // It check placement for all ships. Include border collision check and collision chosen ship with another ships check
         bool playerTurn;     // It turn Player move and Computer move 
         int chooseIndex;     // It select ship for placement
+        int killedShipsCount;
+        int killedCompShipsCount;
         float stepDelay;
 
     public:
         Game(RenderWindow* window, Texture* texture);
         
+        State getState();
+        void setState(State state);
+
         void createMap(Font* font);
         void drawMap();
 
@@ -46,11 +52,10 @@ class Game {
         
         void drawOther();
         
-        void shipPlacementStage(Event* event, Menu* menu, State* currentState);
+        void shipPlacementStage(Event* event, Menu* menu);
         void playingGameStage(Event* event);
-        void update(Event* event, Menu* menu, State* currentState);
+        void update(Event* event, Menu* menu);
         void playingUpdate(int i, int j, Vector2i mousePos);
-
 
         void computersPlacement(Ship* ship, bool isCompShip);
         void killTheShip(Map* map, Ship* _ship);

@@ -8,6 +8,8 @@
 #define OFFSET 3
 #define GRID_STEP WIDTH / RECT_SIZE
 
+inline void splashscreen(RenderWindow* window, Event* event, Game* game, Menu* menu, Color color, Text* text);
+
 void loadFont(Font *font, string path) {
     if (!font->loadFromFile(path)) {
         LOG(ERROR, "Can't load a font!")
@@ -25,8 +27,12 @@ int main() {
     Font font;
     Texture hited_cell;
     Texture shipsTexture[4];
-    State currentState = MENU;
 
+    Text gameOverText;
+    gameOverText.setFont(font);
+    gameOverText.setCharacterSize(72);
+    gameOverText.setPosition(WIDTH / 2, HEIGHT / 2);
+    gameOverText.setOrigin(gameOverText.getLocalBounds().width / 2, gameOverText.getGlobalBounds().height / 2);
 
 /* Load resources */
     loadFont(&font, "./media/fonts/Leto Text Sans Defect.otf");
@@ -48,7 +54,7 @@ int main() {
         Event event;
         window.clear();
 
-        switch (currentState) {
+        switch (game.getState()) {
             case MENU:
                 if(menu.getState() == MAIN_MENU) {
                     // if(menu.RectButton().isVisible(SETTINGS_BUTTON) == false) {
@@ -66,7 +72,7 @@ int main() {
                             if(event.mouseButton.button == Mouse::Left) {
                                 if(menu.checkToClick(menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
-                                    currentState = PLAY;
+                                    game.setState(PLAY);
                                 }
 
                                 if(menu.checkToClick(menu.getRectButton(SETTINGS_BUTTON))) {
@@ -99,7 +105,7 @@ int main() {
 
                         if(event.type == Event::KeyReleased) {
                             if(event.key.code == Keyboard::Escape) {
-                                currentState = PLAY;
+                                game.setState(PLAY);
                             }
                         }
 
@@ -109,12 +115,12 @@ int main() {
 
                                 if(menu.checkToClick(menu.getRectButton(PLAY_BUTTON))) {
                                     LOG(INFO, "Green button was clicked!")
-                                    currentState = PLAY;
+                                    game.setState(PLAY);
                                 }
 
                                 if(menu.checkToClick(menu.getRectButton(EXIT_BUTTON))) {
                                     LOG(INFO, "Red button was clicked!")
-                                    currentState = MENU;
+                                    game.setState(MENU);
                                     menu.setState(MAIN_MENU);
                                 }
                             }
@@ -145,7 +151,7 @@ int main() {
                     isCreated = true;
                 }
 
-                game.update(&event, &menu, &currentState);
+                game.update(&event, &menu);
 
                 // Draw all
                 game.drawMap();
@@ -155,9 +161,17 @@ int main() {
                 break;
             
             case WIN:
+                gameOverText.setString("You Win!");
+                gameOverText.setFillColor(Color::White);
+
+                splashscreen(&window, &event, &game, &menu, Color::Green, &gameOverText);
                 break;
 
             case LOSE:
+                gameOverText.setString("You Lose.");
+                gameOverText.setFillColor(Color::Red);
+
+                splashscreen(&window, &event, &game, &menu, Color::Black, &gameOverText);
                 break;
         }
 
@@ -165,4 +179,25 @@ int main() {
     }
 
     return 0;
+}
+
+inline void splashscreen(RenderWindow* window, Event* event, Game* game, Menu* menu, Color color, Text* text) {
+    text->setOrigin(text->getGlobalBounds().width / 2, text->getGlobalBounds().height / 2);
+    window->clear(color);
+
+    while (window->pollEvent(*event)) {
+        if (event->type == Event::Closed)
+            window->close();
+
+        if(event->type == Event::KeyReleased) {
+            if(event->key.code == Keyboard::Escape ||
+                event->key.code == Keyboard::Space ||
+                event->key.code == Keyboard::Enter) {
+                game->setState(MENU);
+                menu->setState(MAIN_MENU);
+            }
+        }
+    }
+
+    window->draw(*text);
 }
